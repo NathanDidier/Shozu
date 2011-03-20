@@ -1,0 +1,5 @@
+These are applications intended to take place in your project root.
+
+Currently available:
+
+- acl: simple user/role/resource model with cli interface with cookie and http basic auth.
