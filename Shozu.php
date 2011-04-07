@@ -150,10 +150,8 @@ final class Shozu
             $this->__set($key, $val);
         }
         date_default_timezone_set($config['timezone']);
-        spl_autoload_register(array(
-            '\shozu\Shozu',
-            'autoload'
-        ));
+        require_once __DIR__.'/Autoloader.php';
+        Autoloader::register();
         set_exception_handler(array(
             '\shozu\Shozu',
             'handleError'

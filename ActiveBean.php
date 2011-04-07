@@ -103,7 +103,8 @@ abstract class ActiveBean implements \Serializable
         }
         if(count($colNames) > 0)
         {
-            $this->bean->setMeta("buildcommand.unique.0", $colNames);
+            $this->bean->setMeta("buildcommand.unique",array($colNames));
+            //$this->bean->setMeta("buildcommand.unique.0", $colNames);
         }
     }
 
