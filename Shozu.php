@@ -125,7 +125,7 @@ final class Shozu
             'db_pass'                 => '',
             'db_log'                  => false,
             'init_db'                 => false,
-            'base_url'                => isset($_SERVER['HTTP_HOST']) ? ($this->getScheme() . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['SCRIPT_NAME']) != '/' ? dirname($_SERVER["SCRIPT_NAME"]) . '/' : '/')) : '',
+            'base_url'                => isset($_SERVER['HTTP_HOST']) ? ($this->getScheme() . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['SCRIPT_NAME']) != '/' ? dirname($_SERVER["SCRIPT_NAME"]) . '/' : '/')) : '/',
             'debug'                   => false,
             'routes'                  => array() ,
             'obstart'                 => true,
