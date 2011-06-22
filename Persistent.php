@@ -314,6 +314,10 @@ abstract class Persistent extends Record
         $query = '* from ' . self::getTableName($class) . (!empty($query) ? ' where ' . $query : '');
         if($return_hydrator)
         {
+            if(is_null($replace))
+            {
+                $replace = array();
+            }
             return new \shozu\ActiveBean\Hydrator(self::getDB()->getAdapter(), $class, 'select '.$query, $replace);
         }
         try
