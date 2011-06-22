@@ -32,6 +32,10 @@ class Image
     public function __construct($filePath, $initTempBuffer = true)
     {
         $imageInfos = getimagesize($filePath);
+        if(!$imageInfos)
+        {
+            throw new \shozu\Image\Exception('invalid image format.');
+        }
         if(in_array($imageInfos['mime'], array('image/jpeg',
         'image/png',
         'image/gif')))
