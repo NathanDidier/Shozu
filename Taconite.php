@@ -359,6 +359,7 @@ class Taconite
     {
         $string = $this->__toString();
         libxml_use_internal_errors(true);
+        libxml_clear_errors();
         $dom = new \DOMDocument('1.0', 'utf-8');
         $dom->loadXML($string);
         $errors = libxml_get_errors();
