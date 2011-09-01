@@ -432,7 +432,6 @@ class Taconite
     }
     public function redirect($string)
     {
-        //$this->js('$(location).attr("href",' . $this->escapeJSArgs($string) . ');');
         $this->js('location.href = "'.$string.'";');
         return $this;
     }
