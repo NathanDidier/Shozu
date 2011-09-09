@@ -392,11 +392,18 @@ abstract class Persistent extends Record
         }
         $db = self::getDB();
         $class = get_called_class();
+        $temp_uids = array();
         foreach($uids as $key => $uid)
         {
-            $uids[$key] = $db->quote($uid);
+            $uid = trim($uid);
+            if(empty($uid))
+            {
+                continue;
+            }
+            $temp_uids[$key] = $db->quote($uid);
         }
-        $query = '* FROM ' . self::getTableName($class) . ' WHERE uid IN (' . implode(',', $uids) . ') ORDER BY FIELD(uid,'. implode(',', $uids) .')';
+        unset($uids);
+        $query = '* FROM ' . self::getTableName($class) . ' WHERE uid IN (' . implode(',', $temp_uids) . ') ORDER BY FIELD(uid,'. implode(',', $temp_uids) .')';
         try
         {
             return parent::hydrate($class, $db->fetchAll($query));
