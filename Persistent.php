@@ -386,6 +386,8 @@ abstract class Persistent extends Record
      */
     public static function hydrateFromUids(array $uids)
     {
+        $db = self::getDB();
+        $class = get_called_class();
         $temp_uids = array();
         foreach($uids as $key => $uid)
         {
@@ -396,13 +398,11 @@ abstract class Persistent extends Record
             }
             $temp_uids[$key] = $db->quote($uid);
         }
-        if(count($temp_uids) === 1)
+        if(count($temp_uids) === 0)
         {
             return array();
         }
         unset($uids);
-        $db = self::getDB();
-        $class = get_called_class();
         $query = '* FROM ' . self::getTableName($class) . ' WHERE uid IN (' . implode(',', $temp_uids) . ') ORDER BY FIELD(uid,'. implode(',', $temp_uids) .')';
         try
         {
