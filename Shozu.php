@@ -306,7 +306,7 @@ final class Shozu
             {
                 echo '<pre>';
             }
-            die($e->getMessage() . "\n" . $e->getTraceAsString());
+            die($e->getMessage() . "\n" . $e->getTraceAsString() . "\n");
         }
         else
         {
