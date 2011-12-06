@@ -75,6 +75,11 @@ abstract class Record implements \Iterator
         }
     }
 
+    public function isValid()
+    {
+        return $this->_validates();
+    }
+
     public function getLastError()
     {
         return $this->lastError;
