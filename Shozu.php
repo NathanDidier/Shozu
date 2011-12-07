@@ -5,13 +5,10 @@ namespace shozu;
  *
  * See http://twittee.org/ for dependency injection examples
  */
-final class Shozu
+class Shozu
 {
     private static $instance;
     private $store = array();
-    private function __construct()
-    {
-    }
     public function __set($k, $c)
     {
         $this->store[$k] = $c;
@@ -86,19 +83,7 @@ final class Shozu
         return $ret;
     }
     /**
-     * Bootstraps application, dispatch query.
-     *
-     * The Shozu instance acts like a minimalistic dependency injection controller
-     * a la Twittee (http://twittee.org/), so you can add config values or even closures.
-     *
-     * <code>
-     * Shozu::getInstance()->handle(array(
-     *           'url_rewriting'         => false, // override shozu config
-     *           'your_own_config_param' => 'some value', // add your own config
-     *           'your_dependency'       => function(){ return new Foo;} // use closures
-     *
-     * ));
-     * </code>
+     * Return Shozu default config.
      *
      * List of Shozu config keys (see source for default values): document_root,
      * project_root, benchmark, url_rewriting, use_i18n, default_application,
@@ -106,11 +91,11 @@ final class Shozu
      * debug, routes, obstart, include_path, error_handler, timezone, session_name,
      * session.
      *
-     * @param array $override configuration
+     * @return string
      */
-    public function handle(array $override = null)
+    public function getConfigDefaults()
     {
-        $config = array(
+        return array(
             'document_root'           => function(){return \shozu\Shozu::getInstance()->project_root . 'docroot/';},
             'project_root'            => __DIR__ . '/',
             'benchmark'               => false,
@@ -141,15 +126,49 @@ final class Shozu
             'observers'               => array(),
             'registered_applications' => array(),
         );
-        if(is_array($config))
-        {
-            $config = array_merge($config, $override);
-        }
+    }
+    /**
+     * Return Shozu default config.
+     *
+     * List of Shozu config keys (see source for default values): document_root,
+     * project_root, benchmark, url_rewriting, use_i18n, default_application,
+     * default_controller, default_action, db_dsn, db_user, db_pass, base_url,
+     * debug, routes, obstart, include_path, error_handler, timezone, session_name,
+     * session.
+     *
+     * @param array $override configuration
+     * @return string
+     */
+    public function setConfig($override = array())
+    {
+        $config = array_merge($this->getConfigDefaults(), $override);
         foreach($config as $key => $val)
         {
             $this->__set($key, $val);
         }
-        date_default_timezone_set($config['timezone']);
+    }
+    /**
+     * Bootstraps application, dispatch query.
+     *
+     * The Shozu instance acts like a minimalistic dependency injection controller
+     * a la Twittee (http://twittee.org/), so you can add config values or even closures.
+     *
+     * <code>
+     * Shozu::getInstance()->handle(array(
+     *           'url_rewriting'         => false, // override shozu config
+     *           'your_own_config_param' => 'some value', // add your own config
+     *           'your_dependency'       => function(){ return new Foo;} // use closures
+     *
+     * ));
+     * </code>
+     *
+     * @param array $override configuration
+     */
+    public function handle($override = array())
+    {
+        $this->setConfig($override);
+
+        date_default_timezone_set($this->timezone);
         require_once __DIR__.'/Autoloader.php';
         Autoloader::register();
         set_exception_handler(array(
