@@ -110,7 +110,9 @@ class Shozu
             'db_pass'                 => '',
             'db_log'                  => false,
             'init_db'                 => false,
-            'base_url'                => isset($_SERVER['HTTP_HOST']) ? ($this->getScheme() . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['SCRIPT_NAME']) != '/' ? dirname($_SERVER["SCRIPT_NAME"]) . '/' : '/')) : '/',
+            'base_url'                => function() {
+                return \shozu\Shozu::getInstance()->getBaseURL();
+            },
             'debug'                   => false,
             'routes'                  => array() ,
             'obstart'                 => true,
@@ -271,17 +273,28 @@ class Shozu
         }
     }
 
-    private function getScheme()
+    public function getBaseURL()
     {
-        if(php_sapi_name() =='cli')
+        return sprintf('%s%s%s',
+            $this->getScheme(),
+            $this->getHost(),
+            '/'
+        );
+    }
+
+    public function getHost()
+    {
+        return $_SERVER['HTTP_HOST'];
+    }
+
+    public function getScheme()
+    {
+        if(isset($_SERVER['HTTPS']) && strlen($_SERVER['HTTPS']) > 0)
         {
-            return 'http://';
+            return 'https://';
         }
-        if($_SERVER['SERVER_PORT'] == '80')
-        {
-            return 'http://';
-        }
-        return 'https://';
+
+        return 'http://';
     }
 
     private function registerObservers(array $observers_array)
