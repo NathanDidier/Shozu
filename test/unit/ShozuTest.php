@@ -60,4 +60,69 @@ class ShozuTest extends PHPUnit_Framework_TestCase
 
         $s->handle($config);
     }
+
+    public function testGetBaseURL()
+    {
+        $s = $this->getMock('shozu\Shozu', array('getHost'));
+        $s->expects($this->any())
+            ->method('getHost')
+            ->will($this->returnValue('host.example'));
+
+        $this->assertEquals('http://host.example/', $s->getBaseURL());
+    }
+
+    public function testGetBaseURLWhenNonStandardPort()
+    {
+        $s = $this->getMock('shozu\Shozu', array('getHost'));
+        $s->expects($this->any())
+            ->method('getHost')
+            ->will($this->returnValue('host.example:8000'));
+
+        $this->assertEquals('http://host.example:8000/', $s->getBaseURL());
+    }
+
+    public function testGetBaseURLWhenHTTPS()
+    {
+        $s = $this->getMock('shozu\Shozu', array('getHost', 'getScheme'));
+        $s->expects($this->any())
+            ->method('getHost')
+            ->will($this->returnValue('host.example'));
+        $s->expects($this->any())
+            ->method('getScheme')
+            ->will($this->returnValue('https://'));
+
+        $this->assertEquals('https://host.example/', $s->getBaseURL());
+    }
+
+    public function testGetBaseURLWhenNonStandardPortAndHTTPS()
+    {
+        $s = $this->getMock('shozu\Shozu', array('getHost', 'getScheme'));
+        $s->expects($this->any())
+            ->method('getHost')
+            ->will($this->returnValue('host.example:8000'));
+        $s->expects($this->any())
+            ->method('getScheme')
+            ->will($this->returnValue('https://'));
+
+        $this->assertEquals('https://host.example:8000/', $s->getBaseURL());
+    }
+
+    public function testGetHost()
+    {
+        $_SERVER['HTTP_HOST'] = 'host.example';
+
+        $this->assertEquals('host.example', $this->s->getHost());
+    }
+
+    public function testGetSchemeWhenHTTP()
+    {
+        $this->assertEquals('http://', $this->s->getScheme());
+    }
+
+    public function testGetSchemeWhenHTTPS()
+    {
+        $_SERVER['HTTPS'] = 'on';
+
+        $this->assertEquals('https://', $this->s->getScheme());
+    }
 }
