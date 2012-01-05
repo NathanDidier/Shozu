@@ -59,20 +59,27 @@ abstract class Record implements \Iterator
 
     public function __call($name, $args)
     {
-        if(substr($name, 0, 3) == 'set')
+        $method_prefix = substr($name, 0, 3);
+
+        if(in_array($method_prefix, array('set', 'get')))
         {
-            $prop = strtolower(substr($name, 3, 1)) . substr($name, 4);
-            $this->__set($prop, $args[0]);
+            $property = strtolower(substr($name, 3, 1)) . substr($name, 4);
+
+            if($method_prefix == 'set')
+            {
+                return $this->__set($property, $args[0]);
+            }
+            elseif($method_prefix == 'get' && isset($this->$property))
+            {
+                return $this->__get($property);
+            }
         }
-        elseif(substr($name, 0, 3) == 'get')
-        {
-            $prop = strtolower(substr($name, 3, 1)) . substr($name, 4);
-            return $this->__get($prop);
-        }
-        else
-        {
-            throw new \Exception('no such method');
-        }
+
+        throw new \BadMethodCallException(sprintf(
+            "Call to undefined method %s::%s()",
+            get_class($this),
+            $name
+        ));
     }
 
     public function isValid()
