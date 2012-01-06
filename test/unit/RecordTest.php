@@ -26,21 +26,47 @@ class Record extends \shozu\Record
 
 class RecordTest extends PHPUnit_Framework_TestCase
 {
-    public function testRecordWithValidAttributesIsValid()
+    public function setUp()
     {
         $record = new Record(array(
             'name'  => 'Some record'
         ));
 
-        $this->assertTrue($record->isValid());
+        $this->record = $record;
+    }
+
+    public function testRecordWithValidAttributesIsValid()
+    {
+        $this->assertTrue($this->record->isValid());
     }
 
     public function testRecordWithAnInvalidAttributeIsNotValid()
     {
-        $record = new Record(array(
-            'name'  => ''
-        ));
+        $this->record->name = '';
 
-        $this->assertFalse($record->isValid());
+        $this->assertFalse($this->record->isValid());
+    }
+
+    public function testRecordMagicSetterSetAttribute()
+    {
+        $value = 'Some value';
+        $this->record->setName($value);
+
+        $this->assertEquals($value, $this->record->name);
+    }
+
+    public function testRecordMagicGetterGetAttribute()
+    {
+        $value = 'Some value';
+        $this->record->name = $value;
+
+        $this->assertEquals($value, $this->record->getName());
+    }
+
+    public function testRecordCallNonExistentMethodRaiseBadMethodCallException()
+    {
+        $this->setExpectedException('BadMethodCallException');
+
+        $this->record->getNonExistentMethod();
     }
 }
