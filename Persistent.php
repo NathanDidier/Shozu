@@ -297,6 +297,11 @@ abstract class Persistent extends Record
         }
     }
 
+    public function isNew()
+    {
+        return $this->isNew;
+    }
+
     /**
      * Override Record hydrate
      *
