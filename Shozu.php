@@ -173,10 +173,13 @@ class Shozu
         date_default_timezone_set($this->timezone);
         require_once __DIR__.'/Autoloader.php';
         Autoloader::register();
-        set_exception_handler(array(
-            '\shozu\Shozu',
-            'handleError'
-        ));
+        if(!$this->cli)
+        {
+            set_exception_handler(array(
+                '\shozu\Shozu',
+                'handleError'
+            ));
+        }
         try
         {
             if($this->getCache)
@@ -191,7 +194,10 @@ class Shozu
         if($this->debug)
         {
             error_reporting(E_ALL | E_STRICT);
-            ini_set('display_errors', true);
+            if(!$this->cli)
+            {
+                ini_set('display_errors', true);
+            }
         }
         else
         {
