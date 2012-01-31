@@ -564,7 +564,7 @@ abstract class Record implements \Iterator
             if(empty($this->columns[$fieldName]['value']) and
                 !in_array('notblank', $description['validators']))
             {
-                return true;
+                continue;
             }
             if(empty($this->columns[$fieldName]['value']) and
                 in_array('notblank', $description['validators']))
