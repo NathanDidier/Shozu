@@ -63,15 +63,18 @@ abstract class Record implements \Iterator
 
         if(in_array($method_prefix, array('set', 'get')))
         {
-            $property = strtolower(substr($name, 3, 1)) . substr($name, 4);
+            $property = \shozu\Inflector::underscore(substr($name, 3));
 
-            if($method_prefix == 'set')
+            if($this->hasColumn($property))
             {
-                return $this->__set($property, $args[0]);
-            }
-            elseif($method_prefix == 'get' && isset($this->$property))
-            {
-                return $this->__get($property);
+                if($method_prefix == 'set')
+                {
+                    return $this->__set($property, $args[0]);
+                }
+                elseif($method_prefix == 'get')
+                {
+                    return $this->__get($property);
+                }
             }
         }
 
@@ -162,6 +165,17 @@ abstract class Record implements \Iterator
         {
             $this->addColumn($column);
         }
+    }
+
+    /**
+     * Test if the column whose name was passed as argument exists.
+     *
+     * @param   string  $name   Column name
+     * @return  bool            Column existence
+     */
+    public function hasColumn($name)
+    {
+        return isset($this->columns[$name]) ? true : false;
     }
 
     /**
