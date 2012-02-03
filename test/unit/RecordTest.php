@@ -3,6 +3,7 @@
 require_once __DIR__ . '/test_helper.php';
 
 require_once 'Record.php';
+require_once 'Inflector.php';
 
 # FIXME: Neither PHP nor PHPUnit allows to stub instance methods at runtime, so
 # \shozu\Record can not be tested conveniently.
@@ -19,7 +20,18 @@ class Record extends \shozu\Record
             'name'          => 'name',
             'type'          => 'string',
             'length'        => 64,
-            'validators'    => array('notblank')
+        ));
+        $this->addColumn(array(
+            'name'          => 'snake_prop',
+            'type'          => 'string',
+            'length'        => 64
+        ));
+        $this->addColumn(array(
+            'name'          => 'notblank_prop',
+            'type'          => 'string',
+            'length'        => 64,
+            'validators'    => array('notblank'),
+            'notnull'       => true
         ));
     }
 }
@@ -29,7 +41,7 @@ class RecordTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $record = new Record(array(
-            'name'  => 'Some record'
+            'notblank_prop'  => 'Some value'
         ));
 
         $this->record = $record;
@@ -42,9 +54,19 @@ class RecordTest extends PHPUnit_Framework_TestCase
 
     public function testRecordWithAnInvalidAttributeIsNotValid()
     {
-        $this->record->name = '';
+        $this->record->notblank_prop = '';
 
         $this->assertFalse($this->record->isValid());
+    }
+
+    public function testRecordHasColumnWhenColumnExists()
+    {
+        $this->assertTrue($this->record->hasColumn('name'));
+    }
+
+    public function testRecordHasColumnWhenColumnDontExists()
+    {
+        $this->assertFalse($this->record->hasColumn('non_existent_column'));
     }
 
     public function testRecordMagicSetterSetAttribute()
@@ -55,6 +77,14 @@ class RecordTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($value, $this->record->name);
     }
 
+    public function testRecordMagicSetterInflectedAttribute()
+    {
+        $value = 'Some value';
+        $this->record->setSnakeProp($value);
+
+        $this->assertEquals($value, $this->record->snake_prop);
+    }
+
     public function testRecordMagicGetterGetAttribute()
     {
         $value = 'Some value';
@@ -63,10 +93,30 @@ class RecordTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($value, $this->record->getName());
     }
 
-    public function testRecordCallNonExistentMethodRaiseBadMethodCallException()
+    public function testRecordMagicGetterInflectAttribute()
+    {
+        $value = 'Some value';
+        $this->record->snake_prop = $value;
+
+        $this->assertEquals($value, $this->record->getSnakeProp());
+    }
+
+    public function testRecordMagicGetterGetNullAttribute()
+    {
+        $this->assertEquals(null, $this->record->getName());
+    }
+
+    public function testRecordCallNonExistentGetterRaiseBadMethodCallException()
     {
         $this->setExpectedException('BadMethodCallException');
 
-        $this->record->getNonExistentMethod();
+        $this->record->getNonExistentGetter();
+    }
+
+    public function testRecordCallNonExistentSetterRaiseBadMethodCallException()
+    {
+        $this->setExpectedException('BadMethodCallException');
+
+        $this->record->setNonExistentSetter(null);
     }
 }
