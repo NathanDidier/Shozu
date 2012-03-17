@@ -166,7 +166,7 @@ class View
      */
     public function escape($string)
     {
-        return htmlspecialchars($string, ENT_COMPAT | ENT_HTML401, 'UTF-8', true);
+        return htmlspecialchars($string, ENT_QUOTES | ENT_HTML401, 'UTF-8', true);
     }
 
     /**
