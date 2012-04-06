@@ -166,7 +166,11 @@ class View
      */
     public function escape($string)
     {
-        return htmlspecialchars($string, ENT_QUOTES | ENT_HTML401, 'UTF-8', true);
+        if (version_compare(PHP_VERSION, '5.4.0') >= 0)
+        {
+            return htmlspecialchars($string, ENT_QUOTES | ENT_HTML401, 'UTF-8', true);
+        }
+        return htmlspecialchars($string, ENT_QUOTES, 'UTF-8', true);
     }
 
     /**
