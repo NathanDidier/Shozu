@@ -10,7 +10,7 @@ abstract class Controller
     protected $application;
     protected $layout = false;
     protected $layout_vars = array();
-
+    protected static $twig;
     /**
      * New Controller
      *
@@ -100,11 +100,17 @@ abstract class Controller
      */
     public function render($view, $vars = array())
     {
+        $base_name = basename($view);
+        if(strstr($base_name,'.twig'))
+        {
+            return $this->getTwig()->loadTemplate($view)->render($vars);
+        }
         if(substr($view, -4) != '.php')
         {
-            $view = \shozu\Shozu::getInstance()->project_root . 'applications' . DIRECTORY_SEPARATOR
-                                         . $this->application . DIRECTORY_SEPARATOR
-                                         . 'views' . DIRECTORY_SEPARATOR . $view . '.php';
+            $view = \shozu\Shozu::getInstance()->project_root 
+                . 'applications' . DIRECTORY_SEPARATOR
+                . $this->application . DIRECTORY_SEPARATOR
+                . 'views' . DIRECTORY_SEPARATOR . $view . '.php';
         }
         if($this->layout)
         {
@@ -116,6 +122,31 @@ abstract class Controller
             return new \shozu\View($view, $vars);
         }
     }
+
+    public function getTwig()
+    {   
+        if(!self::$twig)
+        {   
+            $shozu = \shozu\Shozu::getInstance();
+            $tpl_dir = $shozu->project_root 
+                . 'applications' . DIRECTORY_SEPARATOR
+                . $this->application . DIRECTORY_SEPARATOR
+                . 'views' . DIRECTORY_SEPARATOR;
+            $tmp_dir = sys_get_temp_dir().DIRECTORY_SEPARATOR
+                .sha1($tpl_dir).DIRECTORY_SEPARATOR;
+            if(!is_dir($tmp_dir))
+            {
+                mkdir($tmp_dir);
+            }
+            self::$twig = new \Twig_Environment(
+                new \Twig_Loader_Filesystem($tpl_dir, array(
+                    'cache' => $tmp_dir, 
+                    'debug' => $shozu->debug
+                )));
+        }   
+        return self::$twig;
+    } 
+
 
     /**
      * display (echoes) rendered view
