@@ -7,7 +7,7 @@ namespace shozu;
  */
 abstract class Controller
 {
-    protected $application;
+    public $application;
     protected $layout = false;
     protected $layout_vars = array();
     protected static $twig;
@@ -133,16 +133,17 @@ abstract class Controller
                 . $this->application . DIRECTORY_SEPARATOR
                 . 'views' . DIRECTORY_SEPARATOR;
             $tmp_dir = sys_get_temp_dir().DIRECTORY_SEPARATOR
-                .sha1($tpl_dir).DIRECTORY_SEPARATOR;
+                .sha1(\shozu\Shozu::getInstance()->project_root).DIRECTORY_SEPARATOR;
             if(!is_dir($tmp_dir))
             {
                 mkdir($tmp_dir);
             }
             self::$twig = new \Twig_Environment(
-                new \Twig_Loader_Filesystem($tpl_dir, array(
+                new TwigLoader($this->application), 
+                array(
                     'cache' => $tmp_dir, 
                     'debug' => $shozu->debug
-                )));
+                ));
         }   
         return self::$twig;
     } 
