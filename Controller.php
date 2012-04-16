@@ -10,7 +10,7 @@ abstract class Controller
     public $application;
     protected $layout = false;
     protected $layout_vars = array();
-    protected static $twig;
+    protected $twig;
     /**
      * New Controller
      *
@@ -103,6 +103,10 @@ abstract class Controller
         $base_name = basename($view);
         if(strstr($base_name,'.twig'))
         {
+            foreach($this->layout_vars as $k => $v)
+            {
+                $vars['_'.$k] = $v;
+            }
             return $this->getTwig()->loadTemplate($view)->render($vars);
         }
         if(substr($view, -4) != '.php')
@@ -125,7 +129,7 @@ abstract class Controller
 
     public function getTwig()
     {   
-        if(!self::$twig)
+        if(!$this->twig)
         {   
             $shozu = \shozu\Shozu::getInstance();
             $tpl_dir = $shozu->project_root 
@@ -138,14 +142,22 @@ abstract class Controller
             {
                 mkdir($tmp_dir);
             }
-            self::$twig = new \Twig_Environment(
+            $this->twig = new \Twig_Environment(
                 new TwigLoader($this->application), 
                 array(
                     'cache' => $tmp_dir, 
                     'debug' => $shozu->debug
                 ));
+            /*
+            if(class_exists('\Twig_Extensions_Extension_Cache_APCBackend'))
+            {
+                $this->twig->addExtension(new \Twig_Extensions_Extension_Cache(
+                    new \Twig_Extensions_Extension_Cache_APCBackend
+                ));
+            }
+             */
         }   
-        return self::$twig;
+        return $this->twig;
     } 
 
 
