@@ -147,7 +147,11 @@ abstract class Controller
                 array(
                     'cache' => $tmp_dir, 
                     'debug' => $shozu->debug
-                ));
+                )
+            );
+            $this->twig->addExtension(new \shozu\Twig\ShozuTwigExtension(
+                $shozu
+            ));
             /*
             if(class_exists('\Twig_Extensions_Extension_Cache_APCBackend'))
             {
