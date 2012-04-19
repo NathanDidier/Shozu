@@ -143,7 +143,7 @@ abstract class Controller
                 mkdir($tmp_dir);
             }
             $this->twig = new \Twig_Environment(
-                new TwigLoader($this->application), 
+                new \shozu\Twig\Loader($this->application),
                 array(
                     'cache' => $tmp_dir, 
                     'debug' => $shozu->debug

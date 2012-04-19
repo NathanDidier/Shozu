@@ -1,5 +1,5 @@
 <?php
-namespace shozu;
+namespace shozu\Twig;
 /*
  * This file is part of Twig.
  *
@@ -16,7 +16,7 @@ namespace shozu;
  * @package    twig
  * @author     Fabien Potencier <fabien@symfony.com>
  */
-class TwigLoader implements \Twig_LoaderInterface
+class Loader implements \Twig_LoaderInterface
 {
     protected $cache;
     public $application;
