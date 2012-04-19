@@ -22,6 +22,10 @@ class Shozu
         return (!is_array($this->store[$k]) && is_callable($this->store[$k])) ? $this->store[$k]($this) : $this->store[$k]; // not php5.3 yet
 
     }
+    public function __isset($k)
+    {
+        return isset($this->store[$k]);
+    }
     /**
      * Merge translation strings with current translations
      *
