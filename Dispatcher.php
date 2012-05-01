@@ -89,16 +89,38 @@ final class Dispatcher
         // If no url passed, we will get the first key from the _GET array
         // that way, index.php?/application/controller/action/var1&email=example@example.com
         // requested_url will be equal to: /application/controller/action/var1
+        //
+        //
         if ($requested_url === null)
         {
-            $pos = strpos($_SERVER['QUERY_STRING'], '&');
-            if ($pos !== false)
+            $url_rewrite = Shozu::getInstance()->url_rewriting;
+            if($url_rewrite && isset($_SERVER['REDIRECT_URL']))
             {
-                $requested_url = substr($_SERVER['QUERY_STRING'], 0, $pos);
+                $requested_url = $_SERVER['REDIRECT_URL'];
+            }
+            elseif($url_rewrite && isset($_SERVER['REQUEST_URI']))
+            {
+                $pos = strpos($_SERVER['REQUEST_URI'], '?');
+                if ($pos !== false)
+                {
+                    $requested_url = substr($_SERVER['REQUEST_URI'], 0, $pos);
+                }
+                else
+                {
+                    $requested_url = $_SERVER['REQUEST_URI'];
+                }
             }
             else
             {
-                $requested_url = $_SERVER['QUERY_STRING'];
+                $pos = strpos($_SERVER['QUERY_STRING'], '&');
+                if ($pos !== false)
+                {
+                    $requested_url = substr($_SERVER['QUERY_STRING'], 0, $pos);
+                }
+                else
+                {
+                    $requested_url = $_SERVER['QUERY_STRING'];
+                }
             }
         }
         // If no URL is requested (due to someone accessing admin section for the first time)
