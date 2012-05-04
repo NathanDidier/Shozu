@@ -34,7 +34,13 @@ class ShozuTwigExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            'action' => new \Twig_Function_Method($this, 'functionAction')
+            'action' => new \Twig_Function_Method(
+                $this,
+                'functionAction',
+                array(
+                    'is_safe' => array('html')
+                )
+            )
         );
     }
 
