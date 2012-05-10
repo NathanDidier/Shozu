@@ -9,10 +9,9 @@ namespace shozu;
  * echo $session->myVar;
  * </code>
  */
-final class Session
+class Session
 {
     private static $instance;
-    private function __construct(){}
 
     /**
      * Get Session instance
