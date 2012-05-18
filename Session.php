@@ -42,6 +42,11 @@ class Session
         $_SESSION[$key] = $value;
     }
 
+    public function __isset($key)
+    {
+        return isset($_SESSION[$key]);
+    }
+
     private static function startSession($name)
     {
         if(!isset($_SESSION))
