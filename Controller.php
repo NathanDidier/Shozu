@@ -152,14 +152,12 @@ abstract class Controller
             $this->twig->addExtension(
                 new \shozu\Twig\ShozuTwigExtension($shozu)
             );
-            /*
-            if(class_exists('\Twig_Extensions_Extension_Cache_APCBackend'))
+            if(function_exists('apc_store') && class_exists('\Twig_Extensions_Extension_Cache_APCBackend'))
             {
                 $this->twig->addExtension(new \Twig_Extensions_Extension_Cache(
                     new \Twig_Extensions_Extension_Cache_APCBackend
                 ));
             }
-             */
         }   
         return $this->twig;
     } 
