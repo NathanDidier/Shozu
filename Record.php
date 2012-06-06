@@ -228,6 +228,29 @@ abstract class Record implements \Iterator
         return 'create table ' . self::getTableName() . '(' . implode(', ', $fields) . ');';
     }
 
+    public function getPropertiesTags()
+    {
+        $out = '';
+        foreach($this->columns as $fieldName => $description)
+        {
+            $type = $description['type'];
+            if($type == 'date' || $type == 'datetime')
+            {
+                $type = '\DateTime';
+            }
+            if($type == 'boolean')
+            {
+                $type = 'bool';
+            }
+            if($type == 'integer')
+            {
+                $type = 'int';
+            }
+            $out.= '* @property '.$type.' '.$fieldName.PHP_EOL;
+        }
+        return $out;
+    }
+
     private function getMysqlTableSql()
     {
         $fields      = array();
