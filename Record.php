@@ -247,8 +247,16 @@ abstract class Record implements \Iterator
                 $type = 'int';
             }
             $out.= '* @property '.$type.' '.$fieldName.PHP_EOL;
+            $upper = ucfirst($fieldName);
+            $out.= '* @method void set'.$upper.'() set'.$upper.'('.($this->isPrimitive($type) ? '' : $type).' $'.$fieldName.')'.PHP_EOL;
+            $out.= '* @method '.$type.' get'.$upper.'() get'.$upper.'()'.PHP_EOL;
         }
         return $out;
+    }
+
+    private function isPrimitive($type)
+    {
+        return in_array($type, array('int','bool','float','string'));
     }
 
     private function getMysqlTableSql()
