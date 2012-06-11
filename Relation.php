@@ -166,7 +166,7 @@ class Relation extends Record
     /**
      * Sort 2 instances
      */
-    private static function sort($a, $b)
+    public static function sort($a, $b)
     {
         $classes = array(self::getClass($a), self::getClass($b));
         if($classes[0] == $classes[1])
