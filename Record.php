@@ -792,6 +792,10 @@ abstract class Record implements \Iterator
         self::$DB = $db;
     }
 
+    /**
+     * @static
+     * @return \shozu\DB
+     */
     public static function getDB()
     {
         if(empty(self::$DB))
