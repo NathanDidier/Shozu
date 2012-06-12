@@ -358,8 +358,8 @@ class DB
     /**
      * Convenience shortcut to PDO's quote method
      *
-     * @param string the string to escape
-     * @param integer Escape mode, defaults to PDO::PARAM_STR
+     * @param string $string
+     * @param integer
      * @return string
      */
     public function quote($string, $type = \PDO::PARAM_STR)
