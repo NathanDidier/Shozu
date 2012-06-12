@@ -247,7 +247,7 @@ abstract class Record implements \Iterator
                 $type = 'int';
             }
             $out.= '* @property '.$type.' '.$fieldName.PHP_EOL;
-            $upper = ucfirst($fieldName);
+            $upper = ucfirst(Inflector::camelize($fieldName));
             $out.= '* @method void set'.$upper.'() set'.$upper.'('.($this->isPrimitive($type) ? '' : $type).' $'.$fieldName.')'.PHP_EOL;
             $out.= '* @method '.$type.' get'.$upper.'() get'.$upper.'()'.PHP_EOL;
         }
