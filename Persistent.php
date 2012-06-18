@@ -14,7 +14,7 @@ use \shozu\Relation as Relation;
  */
 abstract class Persistent extends Record
 {
-    private $isNew = true;
+    public $isNew = true;
     private $linkop = array();
     /**
      * Persistent object

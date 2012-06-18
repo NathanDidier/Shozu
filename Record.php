@@ -17,7 +17,7 @@ abstract class Record implements \Iterator
     private static $tableName;
     private static $DB;
     private static $engine = 'InnoDB';
-    protected $isDirty = true;
+    public $isDirty = true;
     protected $hasAutoId;
     protected $columns;
     protected $lastError;
@@ -695,7 +695,6 @@ abstract class Record implements \Iterator
         if(empty($primaryKeys))
         {
             throw new \Exception('cant update without primary keys');
-            return false;
         }
 
         $where = array();
