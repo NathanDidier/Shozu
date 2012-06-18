@@ -11,6 +11,7 @@ abstract class Controller
     protected $layout = false;
     protected $layout_vars = array();
     protected $twig;
+    protected $request = null;
 
     /**
      * New Controller
@@ -242,6 +243,21 @@ abstract class Controller
             return 'post';
         }
         return 'get';
+    }
+
+    /**
+     * Get Request object.
+     *
+     * @return Request object
+     */
+    public function getRequest()
+    {
+        if(is_null($this->request))
+        {
+            $this->request = new Request();
+        }
+
+        return $this->request;
     }
 
     /**
