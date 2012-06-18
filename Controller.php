@@ -11,10 +11,11 @@ abstract class Controller
     protected $layout = false;
     protected $layout_vars = array();
     protected $twig;
+
     /**
      * New Controller
      *
-     * @param string $application application name
+     * @internal param string $application application name
      */
     public function __construct()
     {
@@ -28,6 +29,8 @@ abstract class Controller
      * @param string $action name
      * @param array $params
      * @param boolean $layoutEnabled
+     * @throws \Exception
+     * @return mixed
      */
     public function execute($action, $params, $layoutEnabled = true)
     {
@@ -127,6 +130,9 @@ abstract class Controller
         }
     }
 
+    /**
+     * @return \Twig_Environment
+     */
     public function getTwig()
     {   
         if(!$this->twig)
@@ -190,6 +196,7 @@ abstract class Controller
      * </code>
      *
      * @param string
+     * @param array|null $params
      */
     public function redirect($route, array $params = null)
     {
@@ -208,6 +215,7 @@ abstract class Controller
      *
      * @param string $name param name
      * @param mixed $default default value
+     * @return mixed|null
      */
     public function getParam($name, $default = null)
     {
@@ -242,9 +250,11 @@ abstract class Controller
      * a proven solution way down your stack (the sooner, the better).
      *
      * @param string $resource_name
-     * @param integer $max_requests max number of requests
+     * @param $requests
      * @param integer $time time period (in seconds)
-     * @param Cache cache backend
+     * @param null|Cache $cache
+     * @internal param int $max_requests max number of requests
+     * @internal param \shozu\cache $Cache backend
      */
     protected function floodLimit($resource_name, $requests, $time = 60, Cache $cache = null)
     {

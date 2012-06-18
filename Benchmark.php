@@ -10,7 +10,7 @@ final class Benchmark
     public static $marks = array();
     public static $enabled = false;
 	/**
-	 * Benchmark start point
+	 * Bench start point
 	 *
 	 * @param string $name point name
 	 * @return boolean
@@ -34,7 +34,7 @@ final class Benchmark
     }
 
 	/**
-	 * Benchmark stop point
+	 * Bench stop point
 	 *
 	 * @param string $name point name
 	 * @return boolean
@@ -149,7 +149,7 @@ final class Benchmark
         $points = self::get(true);
         if (!empty($points))
         {
-            $output.= "\n#### Benchmark ####\n";
+            $output.= "\n#### Bench ####\n";
             foreach($points as $key => $val)
             {
                 $output.= "\n[ " . $key . " ]\n        time: " . $val['time'] . "\n        memory: " . $val['memory'] . "\n";

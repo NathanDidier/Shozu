@@ -19,6 +19,8 @@ class AntiFlood
      * @param string $resource_id identifier for protected resource
      * @param integer $max_requests max number of requests
      * @param integer $time_slice time period (in seconds)
+     * @param null|Cache $cache
+     * @throws AntiFlood\Exception
      */
     public static function limit($resource_id, $max_requests = 5, $time_slice = 60, Cache $cache = null)
     {

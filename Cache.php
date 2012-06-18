@@ -45,6 +45,8 @@ abstract class Cache
      * create / get cache instance
      *
      * @param string $id Cache identifier
+     * @param array|null $options
+     * @throws Cache\Exception
      * @options array options as key=>value pairs
      * @return Cache cache instance
      */
@@ -89,6 +91,7 @@ abstract class Cache
      * Convinience shortcut to Cache::getInstance()
      *
      * @param string $id Cache identifier
+     * @param array|null $options
      * @options array options as key=>value pairs
      * @return Cache cache instance
      */

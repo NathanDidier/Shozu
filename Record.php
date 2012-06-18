@@ -638,10 +638,7 @@ abstract class Record implements \Iterator
      */
     public function save()
     {
-        if(method_exists($this, 'preSave'))
-        {
-            $this->preSave();
-        }
+        $this->preSave();
 
         if($this->_validates())
         {
@@ -659,10 +656,17 @@ abstract class Record implements \Iterator
             throw new \Exception('Record validation error. ' . $this->lastError);
         }
 
-        if(method_exists($this, 'postSave'))
-        {
-            $this->postSave();
-        }
+        $this->postSave();
+    }
+
+    public function preSave()
+    {
+
+    }
+
+    public function postSave()
+    {
+
     }
 
     /**

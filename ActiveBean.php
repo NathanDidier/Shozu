@@ -24,6 +24,7 @@ abstract class ActiveBean implements \Serializable
      * Construct new Record
      *
      * @param mixed $bean bean or bean id or array
+     * @throws \InvalidArgumentException
      */
     public function __construct($bean = null)
     {
@@ -640,7 +641,7 @@ abstract class ActiveBean implements \Serializable
     /**
      * Get PDO instance where available
      *
-     * @return mixed \PDO or false
+     * @return \PDO or false
      */
     final public static function getPDO()
     {

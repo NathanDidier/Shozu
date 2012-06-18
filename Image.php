@@ -26,8 +26,9 @@ class Image
     /**
      * Create new Image object.
      *
-     * @param string Original file path.
-     * @param boolean Init temporary buffer.
+     * @param string $filePath Original file path.
+     * @param bool $initTempBuffer
+     * @throws Image\Exception
      */
     public function __construct($filePath, $initTempBuffer = true)
     {
@@ -87,8 +88,9 @@ class Image
     /**
      * Resize Image, keeping scale.
      *
-     * @param integer New size.
-     * @param string Reference side to resize ("x" or "y"), "x" by default.
+     * @param integer $new_value New size.
+     * @param string $side
+     * @throws Image\Exception
      * @return Image
      */
     public function resizeKeepScale($new_value,$side="x")
@@ -118,7 +120,7 @@ class Image
     /**
      * Resize image so that it would fit in a square of given pixel size.
      *
-     * @param integer Size of square.
+     * @param integer $size Size of square.
      * @return Image
      */
     public function fitToSquare($size)
@@ -138,7 +140,7 @@ class Image
      * Draw a border
      *
      * @param integer $thickness thickness in px
-     * @param array border color as RGB, defaults to array(255,255,255)
+     * @param array $color border color as RGB, defaults to array(255,255,255)
      * @return Image
      */
     public function drawBorder($thickness = 1, $color = array(255, 255, 255))
@@ -190,6 +192,14 @@ class Image
         return $this;
     }
 
+    /**
+     * @param $x
+     * @param $y
+     * @param array $color
+     * @param int $padding
+     * @return Image
+     * @throws Image\Exception
+     */
     public function fitInRectangle($x, $y, $color = array(255, 255, 255), $padding = 0)
     {
         if(empty($color))
@@ -225,8 +235,10 @@ class Image
     /**
      * Resize image to new x and new y.
      *
-     * @param integer New size of x.
-     * @param integer New size of y.
+     * @param integer $new_x New size of x.
+     * @param integer $new_y New size of y.
+     * @throws Image\Exception
+     * @return \shozu\Image
      */
     public function resize($new_x,$new_y)
     {
@@ -248,8 +260,10 @@ class Image
     /**
      * Save temporary buffer to file.
      *
-     * @param string New file path.
-     * @param boolean Add extension, based on original file.
+     * @param string $newPath New file path.
+     * @param bool $addExtension
+     * @throws Image\Exception
+     * @return \shozu\Image
      */
     public function toFile($newPath, $addExtension = true)
     {
@@ -319,10 +333,11 @@ class Image
     /**
      * Colorize image.
      *
-     * @param integer Red value (0-255).
-     * @param integer Blue value (0-255).
-     * @param integer Green value (0-255).
-     * @param mixed Alpha channel.
+     * @param integer $r Red value (0-255).
+     * @param integer $b Blue value (0-255).
+     * @param integer $g Green value (0-255).
+     * @param mixed $alpha Alpha channel.
+     * @return \shozu\Image
      */
     public function colorize($r, $b, $g, $alpha = null)
     {
@@ -352,7 +367,8 @@ class Image
     /**
      * Adjust brightness.
      *
-     * @param integer brightness value
+     * @param integer $val brightness value
+     * @return \shozu\Image
      */
     public function brightness($val)
     {
@@ -366,7 +382,8 @@ class Image
     /**
      * Adjust contrast.
      *
-     * @param integer contrast value
+     * @param integer $val contrast value
+     * @return \shozu\Image
      */
     public function contrast($val)
     {
@@ -545,9 +562,10 @@ class Image
     /**
      * Sharpens image
      *
-     * @param integer amount
-     * @param float radius
-     * @param integer threshold
+     * @param integer $amount amount
+     * @param float $radius radius
+     * @param integer $threshold threshold
+     * @return \shozu\Image
      */
     public function unsharpMask($amount = 140, $radius = 0.8, $threshold = 1)
     {
@@ -575,7 +593,7 @@ class Image
         $radius = abs(round($radius));     // Only integers make sense.
         if ($radius == 0)
         {
-            return;
+            return null;
         }
         $w = imagesx($this->tempBuffer); $h = imagesy($this->tempBuffer);
         $imgCanvas = imagecreatetruecolor($w, $h);

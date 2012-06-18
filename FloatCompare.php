@@ -28,11 +28,13 @@ class FloatCompare
     const OPERATOR_EQUALS = '==';
     const OPERATOR_BIGGER = '>';
     const OPERATOR_SMALLER = '<';
+
     /**
      *
      * @param float $operand1
      * @param string $operator
      * @param float $operand2
+     * @throws \InvalidArgumentException
      * @return bool
      */
     public static function assert($operand1, $operator, $operand2)

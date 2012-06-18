@@ -21,6 +21,9 @@ final class Dispatcher
      * '/blog/:num' => 'blog/post/$1',
      * '/blog/:num/comment/:num/delete' => 'blog/deleteComment/$1/$2'
      *
+     * @static
+     * @param $route
+     * @param null $destination
      */
     public static function addRoute($route, $destination = null)
     {
@@ -33,6 +36,11 @@ final class Dispatcher
         self::$routes = array_merge(self::$routes, $route);
     }
 
+    /**
+     * @static
+     * @param $url
+     * @return array
+     */
     public static function splitUrl($url)
     {
         return preg_split('/\//', $url, -1, PREG_SPLIT_NO_EMPTY);
@@ -83,6 +91,13 @@ final class Dispatcher
         return false;
     }
 
+    /**
+     * @static
+     * @param null $requested_url
+     * @param null $default
+     * @return mixed
+     * @throws \Exception
+     */
     public static function dispatch($requested_url = null, $default = null)
     {
         //Flash::init();
@@ -224,6 +239,16 @@ final class Dispatcher
         return ($key === null) ? self::$status : (isset(self::$status[$key]) ? self::$status[$key] : null);
     }
 
+    /**
+     * @static
+     * @param $application
+     * @param $controller
+     * @param $action
+     * @param array|null $params
+     * @param bool $layoutEnabled
+     * @return mixed
+     * @throws \Exception
+     */
     public static function executeAction($application, $controller, $action, array $params = null, $layoutEnabled = false)
     {
         $params = (array)$params;

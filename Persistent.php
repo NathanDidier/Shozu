@@ -55,13 +55,14 @@ abstract class Persistent extends Record
      * Save object to database
      *
      * @param boolean $force force save even if instance hasn't changed
+     * @throws \PDOException
+     * @throws \Exception
+     * @return void
      */
     public function save($force = false)
     {
-        if(method_exists($this, 'preSave'))
-        {
-            $this->preSave();
-        }
+        $this->preSave();
+
         // stamp object
         $now = time();
         if(is_null($this->created_at))
@@ -94,10 +95,8 @@ abstract class Persistent extends Record
                 throw $e;
             }
         }
-        if(method_exists($this, 'postSave'))
-        {
-            $this->postSave();
-        }
+
+        $this->postSave();
     }
 
     private function _save($force = false)

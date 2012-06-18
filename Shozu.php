@@ -35,6 +35,7 @@ class Shozu
     {
         $this->translations = array_merge($this->translations, $translations);
     }
+
     /**
      * Generate url for dynamic content.
      *
@@ -45,7 +46,9 @@ class Shozu
      * $url = Shozu::getInstance()->url('app/controller/action');
      * </code>
      *
-     * @param string $target targetted path to action
+     * @param string $target targeted path to action
+     * @param array|null $params
+     * @param null $site
      * @return string
      */
     public function url($target, array $params = null, $site = null)
@@ -231,7 +234,7 @@ class Shozu
         ) , $this->include_path))));
         if ($this->benchmark)
         {
-            \shozu\Benchmark::enable();
+            \shozu\Bench::enable();
         }
         if ($this->redbean_start)
         {
@@ -327,7 +330,7 @@ class Shozu
                 ob_start();
             }
         }
-        \shozu\Benchmark::start('dispatch');
+        \shozu\Bench::start('dispatch');
         \shozu\Observer::notify('shozu.dispatch');
         \shozu\Dispatcher::dispatch();
     }

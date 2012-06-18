@@ -53,13 +53,14 @@ class DB
     {
         return in_array($this->getAdapter()->getAttribute(\PDO::ATTR_DRIVER_NAME) , self::$savepointTransactions);
     }
+
     /**
      * Construct new DB object
      *
-     * @param string data source name in the PDO syntax
-     * @param string user
-     * @param string password
-     * @param array PDO options
+     * @param null $dsn
+     * @param null $user
+     * @param null $pass
+     * @param array|null $options
      */
     private function __construct($dsn = null, $user = null, $pass = null, array $options = null)
     {

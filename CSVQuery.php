@@ -34,9 +34,10 @@ class CSVQuery
         }
         return $this->pdo;
     }
-    
+
     /**
      *
+     * @param \PDO $pdo
      * @return CSVQuery
      */
     public function setPDO(\PDO $pdo)
@@ -47,8 +48,12 @@ class CSVQuery
 
     /**
      *
+     * @param $file_name
+     * @param string $delimiter
+     * @param string $enclosure
+     * @param string $escape
      * @return CSVQuery
-     */    
+     */
     public function loadFromFile($file_name, $delimiter = ',', $enclosure = '"', $escape = '\\')
     {
         $this->getPDO()->exec('DROP TABLE IF EXISTS ' . $this->table_name);        
@@ -94,9 +99,12 @@ class CSVQuery
     {
         return \shozu\Inflector::fileName($name);
     }
-    
+
     /**
      *
+     * @param $file_name
+     * @param string $delimiter
+     * @param string $enclosure
      * @return CSVQuery
      */
     public function dumpToFile($file_name, $delimiter = ',', $enclosure = '"')

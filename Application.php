@@ -13,6 +13,7 @@ interface Application
     public static function getObservers();
 
     /**
+     * @param $lang_id
      * @return array
      */
     public static function getTranslations($lang_id);
