@@ -305,12 +305,14 @@ class Taconite
         //}
         return '<taconite>' . $this->content . '</taconite>';
     }
+
     /**
      * Renders the Taconite command document.
      *
      * This performs basic syntax check with the DOMDocument extension.
      *
      * @param bool $die Wether to die after rendering or not
+     * @throws Taconite\Exception
      * @exception
      */
     public function render($die = true)

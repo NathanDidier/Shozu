@@ -45,8 +45,10 @@ class Relation extends Record
      * Relation::link($instanceA, $instanceB);
      * </code>
      *
-     * @param Persistent object A
-     * @param Persistent object B
+     * @param Persistent $a
+     * @param Persistent $b
+     * @throws \PDOException
+     * @return bool
      */
     public static function link(Persistent $a, Persistent $b)
     {
@@ -98,8 +100,10 @@ class Relation extends Record
      * Relation::unlink($instanceA, $instanceB);
      * </code>
      *
-     * @param Persistent object A
-     * @param Persistent object B
+     * @param Persistent $a
+     * @param Persistent $b
+     * @throws \PDOException
+     * @return int
      */
     public static function unlink(Persistent $a, Persistent $b)
     {
@@ -136,7 +140,9 @@ class Relation extends Record
      * Relation::remove('123456');
      * </code>
      *
-     * @param mixed
+     * @param $a
+     * @throws \PDOException
+     * @return int
      */
     public static function remove($a)
     {
