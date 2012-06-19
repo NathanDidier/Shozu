@@ -234,7 +234,7 @@ class Shozu
         ) , $this->include_path))));
         if ($this->benchmark)
         {
-            \shozu\Bench::enable();
+            \shozu\Benchmark::enable();
         }
         if ($this->redbean_start)
         {
@@ -330,7 +330,7 @@ class Shozu
                 ob_start();
             }
         }
-        \shozu\Bench::start('dispatch');
+        \shozu\Benchmark::start('dispatch');
         \shozu\Observer::notify('shozu.dispatch');
         \shozu\Dispatcher::dispatch();
     }
