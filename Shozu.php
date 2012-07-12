@@ -95,7 +95,7 @@ class Shozu
      * List of Shozu config keys (see source for default values): document_root,
      * project_root, benchmark, url_rewriting, use_i18n, default_application,
      * default_controller, default_action, db_dsn, db_user, db_pass, base_url,
-     * debug, routes, obstart, include_path, error_handler, timezone, session_name,
+     * debug, routes, include_path, error_handler, timezone, session_name,
      * session.
      *
      * @return string
@@ -122,7 +122,6 @@ class Shozu
             },
             'debug'                   => false,
             'routes'                  => array() ,
-            'obstart'                 => true,
             'include_path'            => explode(PATH_SEPARATOR, get_include_path()) ,
             'error_handler'           => '',
             'timezone'                => 'Europe/Paris',
@@ -142,7 +141,7 @@ class Shozu
      * List of Shozu config keys (see source for default values): document_root,
      * project_root, benchmark, url_rewriting, use_i18n, default_application,
      * default_controller, default_action, db_dsn, db_user, db_pass, base_url,
-     * debug, routes, obstart, include_path, error_handler, timezone, session_name,
+     * debug, routes, include_path, error_handler, timezone, session_name,
      * session.
      *
      * @param array $override configuration
@@ -323,13 +322,6 @@ class Shozu
 
     private function dispatch()
     {
-        if ($this->obstart)
-        {
-            if (!ob_start('ob_gzhandler'))
-            {
-                ob_start();
-            }
-        }
         \shozu\Benchmark::start('dispatch');
         \shozu\Observer::notify('shozu.dispatch');
         \shozu\Dispatcher::dispatch();
