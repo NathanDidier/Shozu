@@ -438,7 +438,7 @@ class DB
     /**
      * For those special cases where you need all the power of PDO
      *
-     * @return PDO database adapter
+     * @return \PDO database adapter
      */
     public function getAdapter()
     {
