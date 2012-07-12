@@ -477,7 +477,7 @@ abstract class Record implements \Iterator
 
     public function __toString()
     {
-        return print_r($this->valuesArray(), true);
+        return var_export($this->valuesArray(), true);
     }
 
     public function __unset($key)
