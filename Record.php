@@ -45,14 +45,14 @@ abstract class Record implements \Iterator
         {
             if(isset($v['default']))
             {
-                $this->setValue($k, $v['default']);
+                $this->__set($k, $v['default']);
             }
         }
         if(!is_null($values))
         {
             foreach($values as $key => $value)
             {
-                $this->setValue($key, $value);
+                $this->__set($key, $value);
             }
         }
     }
@@ -446,7 +446,16 @@ abstract class Record implements \Iterator
     {
         if(isset($this->columns[$key]))
         {
-            $this->setValue($key, $value);
+            if(!isset($this->columns[$key]['value']) || $this->columns[$key]['value'] !== $value)
+            {
+                if(!empty($this->columns[$key]['length']) && mb_strlen($value, 'UTF-8') > $this->columns[$key]['length'])
+                {
+                    throw new \Exception('value exceeds length limit for ' . $key);
+                }
+                $this->isDirty = true;
+            }
+            $this->columns[$key]['value'] = $value;
+            $this->columns[$key]['dirty'] = true;
         }
     }
 
@@ -454,17 +463,68 @@ abstract class Record implements \Iterator
     {
         if(isset($this->columns[$key]['value']))
         {
-            if($this->columns[$key]['type'] == 'datetime' || $this->columns[$key]['type'] == 'time')
+            if($this->columns[$key]['dirty'])
             {
-                return new \DateTime($this->columns[$key]['value']);
-            }
-            if($this->columns[$key]['type'] == 'array')
-            {
-                return (array)unserialize($this->columns[$key]['value']);
-            }
-            if($this->columns[$key]['type'] == 'object')
-            {
-                return unserialize($this->columns[$key]['value']);
+                if(($this->columns[$key]['type'] == 'datetime' || $this->columns[$key]['type'] == 'time')
+                    && !($this->columns[$key]['value'] instanceof \DateTime))
+                {
+                    if(is_integer($this->columns[$key]['value']))
+                    {
+                        $this->columns[$key]['value'] = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s', $this->columns[$key]['value']));
+                    }
+                    else
+                    {
+                        $this->columns[$key]['value'] = new \DateTime($this->columns[$key]['value']);
+                    }
+
+                }
+                if($this->columns[$key]['type'] == 'array' && !is_array($this->columns[$key]['value']))
+                {
+                    $this->columns[$key]['value'] = (array)unserialize($this->columns[$key]['value']);
+                }
+                if($this->columns[$key]['type'] == 'object' && !is_object($this->columns[$key]['value']))
+                {
+                    $this->columns[$key]['value'] = unserialize($this->columns[$key]['value']);
+                }
+
+
+
+                // apply formatters
+
+                if(!empty($this->columns[$key]['formatters']))
+                {
+                    foreach($this->columns[$key]['formatters'] as $formatter)
+                    {
+                        if($formatter == 'limiter' && !empty($this->columns[$key]['length']))
+                        {
+                            $this->columns[$key]['value'] = mb_substr($this->columns[$key]['value'], 0, $this->columns[$key]['length'], 'UTF-8');
+                        }
+                        else
+                        {
+                            $this->columns[$key]['value'] = $this->{$formatter.'Formatter'}($this->columns[$key]['value']);
+                        }
+                    }
+                }
+
+
+                // Cast Data
+
+                switch($this->columns[$key]['type'])
+                {
+                    case 'int':
+                    case 'integer':
+                        $this->columns[$key]['value'] = (int)$this->columns[$key]['value'];
+                        break;
+                    case 'bool':
+                    case 'boolean':
+                        $this->columns[$key]['value'] = (bool)$this->columns[$key]['value'];
+                        break;
+                    default:
+                        break;
+                }
+
+
+                $this->columns[$key]['dirty'] = false;
             }
             return $this->columns[$key]['value'];
         }
@@ -483,73 +543,6 @@ abstract class Record implements \Iterator
     public function __unset($key)
     {
         unset($this->columns[$key]['value']);
-    }
-
-    private function setValue($key, $value)
-    {
-        if(!isset($this->columns[$key]))
-        {
-            return;
-        }
-        if(!empty($this->columns[$key]['formatters']))
-        {
-            foreach($this->columns[$key]['formatters'] as $formatter)
-            {
-                if($formatter == 'limiter' && !empty($this->columns[$key]['length']))
-                {
-                    $value = mb_substr($value, 0, $this->columns[$key]['length'], 'UTF-8');
-                }
-                else
-                {
-                    $value = $this->{$formatter.'Formatter'}($value);
-                }
-            }
-        }
-        switch($this->columns[$key]['type'])
-        {
-            case 'int':
-            case 'integer':
-                $value = (int)$value;
-                break;
-            case 'bool':
-            case 'boolean':
-                $value = (bool)$value;
-                break;
-            case 'array':
-                if(!is_string($value))
-                {
-                    $value = serialize($value);
-                }
-                break;
-            case 'object':
-                if(!is_string($value))
-                {
-                    $value = serialize($value);
-                }
-                break;
-            case 'datetime':
-            case 'time':
-                if($value instanceof \DateTime)
-                {
-                    $value = $value->format('Y-m-d H:i:s');
-                }
-                if(is_integer($value))
-                {
-                    $value = date('Y-m-d H:i:s', $value);
-                }
-            default:
-                $value = $value;
-                break;
-        }
-        if(!isset($this->columns[$key]['value']) || $this->columns[$key]['value'] !== $value)
-        {
-            if(!empty($this->columns[$key]['length']) && mb_strlen($value, 'UTF-8') > $this->columns[$key]['length'])
-            {
-                throw new \Exception('value exceeds length limit for ' . $key);
-            }
-            $this->columns[$key]['value'] = $value;
-            $this->isDirty = true;
-        }
     }
 
     protected function trimFormatter($string)
@@ -760,13 +753,22 @@ abstract class Record implements \Iterator
             {
                 continue;
             }
-            if(isset($description['value']) && $description['value'] instanceof \DateTime)
+            if(!isset($description['value']))
             {
-                $a[$key] = $description['value']->format('Y-m-d H:i:s');
+                $a[$key] = null;
             }
             else
             {
-                $a[$key] = isset($description['value']) ? $description['value'] : null;
+                $value = $this->__get($key);
+                if($value instanceof \DateTime)
+                {
+                    $value = $value->format('Y-m-d H:i:s');
+                }
+                elseif(is_array($value) || is_object($value))
+                {
+                    $value = serialize($value);
+                }
+                $a[$key] = $value;
             }
         }
         return $a;
