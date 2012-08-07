@@ -68,7 +68,7 @@ class Loader implements \Twig_LoaderInterface
     protected function findTemplate($name)
     {
         $parts = explode(':', $name);
-        if(count($parts) == 2 && preg_match("/([A-Za-z])/",$parts[0]))
+        if (count($parts) == 2 && preg_match('/([A-Za-z])/', $parts[0]))
         {
             $name = \shozu\Shozu::getInstance()->project_root.'applications/'.$parts[0].'/views/'.$parts[1];
         }
@@ -86,7 +86,7 @@ class Loader implements \Twig_LoaderInterface
 
         $this->validateName($name);
 
-        if(is_file($name))
+        if (is_file($name))
         {
             return $this->cache[$name] = $name;
         }
