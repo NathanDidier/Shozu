@@ -70,12 +70,17 @@ class Loader implements \Twig_LoaderInterface
         $parts = explode(':', $name);
         if (count($parts) == 2 && preg_match('/([A-Za-z])/', $parts[0]))
         {
-            $name = \shozu\Shozu::getInstance()->project_root.'applications/'.$parts[0].'/views/'.$parts[1];
+            $this->application = $parts[0];
+            $name = $parts[1];
         }
-        else
-        {
-            $name = \shozu\Shozu::getInstance()->project_root.'applications/'.$this->application.'/views/'.$name;
-        }
+        $name = join('/', array(
+            \shozu\Shozu::getInstance()->project_root,
+            'applications',
+            $this->application,
+            'views',
+            $name
+        ));
+
         // normalize name
         $name = preg_replace('#/{2,}#', '/', strtr($name, '\\', '/'));
 
