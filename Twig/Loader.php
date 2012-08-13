@@ -68,25 +68,30 @@ class Loader implements \Twig_LoaderInterface
     protected function findTemplate($name)
     {
         $parts = explode(':', $name);
-        if(count($parts) == 2 && preg_match("/([A-Za-z])/",$parts[0]))
+        if (count($parts) == 2 && preg_match('/([A-Za-z])/', $parts[0]))
         {
-            $name = \shozu\Shozu::getInstance()->project_root.'applications/'.$parts[0].'/views/'.$parts[1];
+            $this->application = $parts[0];
+            $name = $parts[1];
         }
-        else
-        {
-            $name = \shozu\Shozu::getInstance()->project_root.'applications/'.$this->application.'/views/'.$name;
-        }
+        $name = join('/', array(
+            \shozu\Shozu::getInstance()->project_root,
+            'applications',
+            $this->application,
+            'views',
+            $name
+        ));
+
         // normalize name
         $name = preg_replace('#/{2,}#', '/', strtr($name, '\\', '/'));
 
-        if (isset($this->cache[$name])) 
+        if (isset($this->cache[$name]))
         {
             return $this->cache[$name];
         }
 
         $this->validateName($name);
 
-        if(is_file($name))
+        if (is_file($name))
         {
             return $this->cache[$name] = $name;
         }
@@ -96,7 +101,7 @@ class Loader implements \Twig_LoaderInterface
 
     protected function validateName($name)
     {
-        if (false !== strpos($name, "\0")) 
+        if (false !== strpos($name, "\0"))
         {
             throw new \Twig_Error_Loader('A template name cannot contain NUL bytes.');
         }
