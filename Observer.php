@@ -21,8 +21,7 @@ final class Observer
      */
     public static function observe($name, $callback)
     {
-        if (!isset(self::$events[$name]))
-        {
+        if (!isset(self::$events[$name])) {
             self::$events[$name] = array();
         }
         self::$events[$name][] = $callback;
@@ -33,16 +32,11 @@ final class Observer
      */
     public static function clear($name, $callback=false)
     {
-        if ( ! $callback)
-        {
+        if (! $callback) {
             self::$events[$name] = array();
-        }
-        else if (isset(self::$events[$name]))
-        {
-            foreach (self::$events[$name] as $i => $event_callback)
-            {
-                if ($callback === $event_callback)
-                {
+        } elseif (isset(self::$events[$name])) {
+            foreach (self::$events[$name] as $i => $event_callback) {
+                if ($callback === $event_callback) {
                     unset(self::$events[$name][$i]);
                 }
             }
@@ -68,8 +62,7 @@ final class Observer
         // removing event name from the arguments
         $args = func_num_args() > 1 ? array_slice(func_get_args(), 1): array();
 
-        foreach (self::get($name) as $callback)
-        {
+        foreach (self::get($name) as $callback) {
             //if(is_callable($callback))
             //{
                 call_user_func_array($callback, $args);

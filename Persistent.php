@@ -39,12 +39,9 @@ abstract class Persistent extends Record
             'type'    => 'datetime'
         ));
         parent::__construct($values);
-        if(is_null($this->uid))
-        {
+        if (is_null($this->uid)) {
             $this->uid = self::uidgen();
-        }
-        else
-        {
+        } else {
             // if uid is available, we *assume* object is not new and is clean
             $this->isNew = false;
             $this->isDirty = false;
@@ -54,7 +51,7 @@ abstract class Persistent extends Record
     /**
      * Save object to database
      *
-     * @param boolean $force force save even if instance hasn't changed
+     * @param  boolean       $force force save even if instance hasn't changed
      * @throws \PDOException
      * @throws \Exception
      * @return void
@@ -65,33 +62,23 @@ abstract class Persistent extends Record
 
         // stamp object
         $now = time();
-        if(is_null($this->created_at))
-        {
+        if (is_null($this->created_at)) {
             $this->created_at = $now;
         }
         $this->modified_at = $now;
 
-        try
-        {
-            if($this->_validates())
-            {
+        try {
+            if ($this->_validates()) {
                 $this->_save($force);
-            }
-            else
-            {
+            } else {
                 throw new \Exception('Record validation error. ' . $this->lastError);
             }
-        }
-        catch(\PDOException $e)
-        {
+        } catch (\PDOException $e) {
             // table not found, try to create it
-            if($e->getCode() == self::SQL_UNKNOWN_TABLE)
-            {
+            if ($e->getCode() == self::SQL_UNKNOWN_TABLE) {
                 $this->createTable();
                 $this->_save($force);
-            }
-            else
-            {
+            } else {
                 throw $e;
             }
         }
@@ -101,44 +88,33 @@ abstract class Persistent extends Record
 
     private function _save($force = false)
     {
-        try
-        {
+        try {
             self::getDB()->beginTransaction();
             $oldIsDirty = $this->isDirty;
             $oldIsNew = $this->isNew;
-            if($force)
-            {
+            if ($force) {
                 $this->isDirty = true;
             }
-            if($this->isDirty)
-            {
-                if($this->isNew)
-                {
+            if ($this->isDirty) {
+                if ($this->isNew) {
                     $this->insert();
                     $this->isNew = false;
-                }
-                else
-                {
+                } else {
                     $this->update();
                 }
                 $this->isDirty = false;
             }
-            foreach($this->linkop as $op)
-            {
-                if($op[0] == 'link')
-                {
+            foreach ($this->linkop as $op) {
+                if ($op[0] == 'link') {
                     Relation::link($this, $op[1]);
                 }
 
-                if($op[0] == 'unlink')
-                {
+                if ($op[0] == 'unlink') {
                     Relation::unlink($this, $op[1]);
                 }
             }
             self::getDB()->commit();
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             self::getDB()->rollBack();
             $this->isDirty = $oldIsDirty;
             $this->isNew = $oldIsNew;
@@ -157,8 +133,7 @@ abstract class Persistent extends Record
      */
     public function link()
     {
-        foreach(func_get_args() as $object)
-        {
+        foreach (func_get_args() as $object) {
             $this->linkop[] = array('link', $object);
         }
     }
@@ -177,19 +152,14 @@ abstract class Persistent extends Record
      */
     public function unlink()
     {
-        if(func_num_args() === 1 && is_string(func_get_arg(0)))
-        {
+        if (func_num_args() === 1 && is_string(func_get_arg(0))) {
             $class = func_get_arg(0);
             $instances = $this->getRelated($class);
-            foreach($instances as $instance)
-            {
+            foreach ($instances as $instance) {
                 $this->linkop[] = array('unlink', $instance);
             }
-        }
-        else
-        {
-            foreach(func_get_args() as $object)
-            {
+        } else {
+            foreach (func_get_args() as $object) {
                 $this->linkop[] = array('unlink', $object);
             }
         }
@@ -205,23 +175,20 @@ abstract class Persistent extends Record
      *                               array(':name' => 'london'));
      * </code>
      *
-     * @param string $class Class name.
+     * @param string $class      Class name.
      * @param string $conditions additionnal filters
-     * @param array $replace strings to quote
+     * @param array  $replace    strings to quote
+     * @return array
      */
     public function getRelated($class, $conditions = '', array $replace = array())
     {
-        if(substr($class,0,1) != '\\')
-        {
+        if (substr($class,0,1) != '\\') {
             $class = '\\' . $class;
         }
         $db = self::getDB();
-        if(!empty($conditions))
-        {
-            if(!is_null($replace))
-            {
-                foreach($replace as $key => $val)
-                {
+        if (!empty($conditions)) {
+            if (!is_null($replace)) {
+                foreach ($replace as $key => $val) {
                     $replace[$key] = $db->quote($val);
                 }
             }
@@ -232,35 +199,27 @@ abstract class Persistent extends Record
         sort($classes);
         $relationType = $classes[0] . '-' . $classes[1];
 
-        if($classes[0] == Relation::getClass($this))
-        {
+        if ($classes[0] == Relation::getClass($this)) {
             $uid_local = 'uid_a';
             $uid_foreign = 'uid_b';
-        }
-        else
-        {
+        } else {
             $uid_local = 'uid_b';
             $uid_foreign = 'uid_a';
         }
         $sql = 'a.* FROM ' . Relation::getTableName() . ' r inner join ' . \shozu\Inflector::model2dbName($class) . ' a on a.uid = r.:UID_FOREIGN: where :UID_LOCAL:=' . $db->quote($this->uid) . ' and r.relation_parties='. $db->quote($relationType) . $conditions;
-        try
-        {
+        try {
             $rows = $db->fetchAll(str_replace(array(':UID_FOREIGN:',':UID_LOCAL:'),
                                               array($uid_foreign, $uid_local),
                                               $sql));
-        }
-        catch(\PDOException $e)
-        {
-            if($e->getCode() == self::SQL_UNKNOWN_TABLE)
-            {
+        } catch (\PDOException $e) {
+            if ($e->getCode() == self::SQL_UNKNOWN_TABLE) {
                 return array();
             }
         }
         // additionnal query for Xyz-Xyz relations
         // TODO: find a better way ! This will not give expected results if used
         // with an order by clause
-        if($classes[0] == $classes[1])
-        {
+        if ($classes[0] == $classes[1]) {
             // swap uids
             list($uid_local, $uid_foreign) = array($uid_foreign, $uid_local);
             // re-run query, merge results
@@ -269,10 +228,10 @@ abstract class Persistent extends Record
                                                                 $sql)));
         }
 
-        if(count($rows) > 0)
-        {
+        if (count($rows) > 0) {
             return Record::hydrate($class, $rows);
         }
+
         return array();
     }
 
@@ -282,15 +241,12 @@ abstract class Persistent extends Record
     public function delete()
     {
         $db = self::getDB();
-        try
-        {
+        try {
             $db->beginTransaction();
             Relation::remove($this);
             $db->exec('delete from ' . \shozu\Inflector::model2dbName(Relation::getClass($this)) . ' where uid=' . $db->quote($this->uid));
             $db->commit();
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             $db->rollBack();
             throw $e;
         }
@@ -308,36 +264,31 @@ abstract class Persistent extends Record
      * $myClassInstances = myClass::hydrate('firstname=? and lastname=?',array('john', 'doe'));
      * </code>
      *
-     * @param string sql query conditions
-     * @param array to be replaced
+     * @param string $query sql query conditions
+     * @param array $replace to be replaced
+     * @param bool $return_hydrator
+     * @throws \PDOException
      * @return array
      */
     public static function hydrate($query = '', array $replace = null, $return_hydrator = false)
     {
         $class = get_called_class();
         $query = '* from ' . self::getTableName($class) . (!empty($query) ? ' where ' . $query : '');
-        if($return_hydrator)
-        {
-            if(is_null($replace))
-            {
+        if ($return_hydrator) {
+            if (is_null($replace)) {
                 $replace = array();
             }
+
             return new \shozu\ActiveBean\Hydrator(self::getDB()->getAdapter(), $class, 'select '.$query, $replace);
         }
-        try
-        {
+        try {
             return parent::hydrate($class, self::getDB()->fetchAll($query, $replace));
-        }
-        catch(\PDOException $e)
-        {
+        } catch (\PDOException $e) {
             // table not found
-            if($e->getCode() == self::SQL_UNKNOWN_TABLE)
-            {
+            if ($e->getCode() == self::SQL_UNKNOWN_TABLE) {
                 // do nothing, will be created with first save
                 return array();
-            }
-            else
-            {
+            } else {
                 throw $e;
             }
         }
@@ -350,33 +301,29 @@ abstract class Persistent extends Record
      * $mySingleClassInstance = myClass::hydrateOne('firstname=? and lastname=?',array('john', 'doe'));
      * </code>
      *
-     * @param string sql query conditions
-     * @param array to be replaced
+     * @param $query
+     * @param array $replace to be replaced
+     * @throws \PDOException
+     * @internal param \shozu\sql $string query conditions
      * @return Persistent
      */
     public static function hydrateOne($query, array $replace = null)
     {
         $class = get_called_class();
         $query = '* from ' . self::getTableName($class) . ' where ' . $query . ' limit 1';
-        try
-        {
+        try {
             $objects = parent::hydrate($class, self::getDB()->fetchAll($query, $replace));
-            if(count($objects) > 0)
-            {
+            if (count($objects) > 0) {
                 return $objects[0];
             }
+
             return false;
-        }
-        catch(\PDOException $e)
-        {
+        } catch (\PDOException $e) {
             // table not found
-            if($e->getCode() == self::SQL_UNKNOWN_TABLE)
-            {
+            if ($e->getCode() == self::SQL_UNKNOWN_TABLE) {
                 // do nothing, will be created with first save
                 return false;
-            }
-            else
-            {
+            } else {
                 throw $e;
             }
         }
@@ -385,7 +332,8 @@ abstract class Persistent extends Record
     /**
      * Hydrate instances from given uids
      *
-     * @param array $uids
+     * @param  array $uids
+     * @throws \PDOException
      * @return array
      */
     public static function hydrateFromUids(array $uids)
@@ -393,35 +341,26 @@ abstract class Persistent extends Record
         $db = self::getDB();
         $class = get_called_class();
         $temp_uids = array();
-        foreach($uids as $key => $uid)
-        {
+        foreach ($uids as $key => $uid) {
             $uid = trim($uid);
-            if(empty($uid))
-            {
+            if (empty($uid)) {
                 continue;
             }
             $temp_uids[$key] = $db->quote($uid);
         }
-        if(count($temp_uids) === 0)
-        {
+        if (count($temp_uids) === 0) {
             return array();
         }
         unset($uids);
         $query = '* FROM ' . self::getTableName($class) . ' WHERE uid IN (' . implode(',', $temp_uids) . ') ORDER BY FIELD(uid,'. implode(',', $temp_uids) .')';
-        try
-        {
+        try {
             return parent::hydrate($class, $db->fetchAll($query));
-        }
-        catch(\PDOException $e)
-        {
+        } catch (\PDOException $e) {
             // table not found
-            if($e->getCode() == self::SQL_UNKNOWN_TABLE)
-            {
+            if ($e->getCode() == self::SQL_UNKNOWN_TABLE) {
                 // do nothing, will be created with first save
                 return array();
-            }
-            else
-            {
+            } else {
                 throw $e;
             }
         }
@@ -430,23 +369,23 @@ abstract class Persistent extends Record
     /**
      * Hydrate one instance from uid
      *
-     * @param string $uid
+     * @param  string $uid
      * @return mixed
      */
     public static function hydrateOneFromUid($uid)
     {
         $res = self::hydrateFromUids(array($uid));
-        if(count($res) == 0)
-        {
+        if (count($res) == 0) {
             return false;
         }
+
         return $res[0];
     }
 
     /**
      * hydrateOneFromUid alias
      *
-     * @param string $uid
+     * @param  string $uid
      * @return mixed
      */
     public static function findOneByUid($uid)
@@ -468,32 +407,28 @@ abstract class Persistent extends Record
     /**
      * Count all instances in database with given where clause
      *
-     * @param string $where
+     * @param  string  $where
+     * @param array $replace
+     * @throws \PDOException
      * @return integer
      */
     public static function count($where = '1', array $replace = null)
     {
-        try
-        {
+        try {
             $res =  self::getDB()->fetchOne('COUNT(*) as total FROM ' . self::getTableName(get_called_class()) . ' WHERE ' . $where, $replace);
-        }
-        catch(\PDOException $e)
-        {
+        } catch (\PDOException $e) {
             // table not found
-            if($e->getCode() == self::SQL_UNKNOWN_TABLE)
-            {
+            if ($e->getCode() == self::SQL_UNKNOWN_TABLE) {
                 // do nothing, will be created with first save
                 return 0;
-            }
-            else
-            {
+            } else {
                 throw $e;
             }
         }
-        if($res)
-        {
-            return (int)$res;
+        if ($res) {
+            return (int) $res;
         }
+
         return 0;
     }
 

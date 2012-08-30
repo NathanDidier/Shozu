@@ -9,16 +9,11 @@ class Testing extends \shozu\Controller\CLI
     public function allAction()
     {
         $methods = get_class_methods($this);
-        foreach($methods as $method)
-        {
-            if(substr($method, 0, 4) == 'test')
-            {
-                try
-                {
+        foreach ($methods as $method) {
+            if (substr($method, 0, 4) == 'test') {
+                try {
                     $this->$method();
-                }
-                catch (\Exception $e)
-                {
+                } catch (\Exception $e) {
                     die(get_class($e) . ' on ' . $method . ': ' . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n");
                 }
             }
@@ -40,12 +35,9 @@ class Testing extends \shozu\Controller\CLI
 
     protected function asrt($a, $b)
     {
-        if($a === $b)
-        {
+        if ($a === $b) {
             $this->pass();
-        }
-        else
-        {
+        } else {
             $this->fail('Expected '.$b.' but got '.$a);
         }
     }

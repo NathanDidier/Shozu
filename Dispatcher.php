@@ -27,8 +27,7 @@ final class Dispatcher
      */
     public static function addRoute($route, $destination = null)
     {
-        if ($destination != null && !is_array($route))
-        {
+        if ($destination != null && !is_array($route)) {
             $route = array(
                 $route => $destination
             );
@@ -57,44 +56,40 @@ final class Dispatcher
      * echo "\n" . \Shozu::getInstance()->url('static/page/show/789');
      * </code>
      *
-     * @param string $dest destination path (app/controller/action)
-     * @param array $params action parameters
-     * @return mixed reversed route or false
+     * @param  string $dest   destination path (app/controller/action)
+     * @param  array  $params action parameters
+     * @return mixed  reversed route or false
      */
     public static function reverseRoute($dest, array $params = null)
     {
-        if (substr($dest, 0, 1) == '/')
-        {
+        if (substr($dest, 0, 1) == '/') {
             $dest = substr($dest, -1);
         }
-        foreach(self::$routes as $route => $destination)
-        {
-            if (strstr($destination, $dest))
-            {
-                if (is_array($params))
-                {
-                    if (strpos($route, ':') !== false)
-                    {
+        foreach (self::$routes as $route => $destination) {
+            if (strstr($destination, $dest)) {
+                if (is_array($params)) {
+                    if (strpos($route, ':') !== false) {
                         $route = str_replace(':any', '(.+)', str_replace(':num', '([0-9]+)', $route));
                     }
                     $route = str_replace('(.+)', ':replace:', str_replace('([0-9]+)', ':replace:', $route));
                     $parts = explode(':replace:', $route);
                     $route = '';
-                    foreach($parts as $key => $part)
-                    {
+                    foreach ($parts as $key => $part) {
                         $route.= $part . (isset($params[$key]) ? $params[$key] : '');
                     }
                 }
+
                 return $route;
             }
         }
+
         return false;
     }
 
     /**
      * @static
-     * @param null $requested_url
-     * @param null $default
+     * @param  null       $requested_url
+     * @param  null       $default
      * @return mixed
      * @throws \Exception
      */
@@ -106,47 +101,33 @@ final class Dispatcher
         // requested_url will be equal to: /application/controller/action/var1
         //
         //
-        if ($requested_url === null)
-        {
+        if ($requested_url === null) {
             $url_rewrite = Shozu::getInstance()->url_rewriting;
-            if($url_rewrite && isset($_SERVER['REDIRECT_URL']))
-            {
+            if ($url_rewrite && isset($_SERVER['REDIRECT_URL'])) {
                 $requested_url = $_SERVER['REDIRECT_URL'];
-            }
-            elseif($url_rewrite && isset($_SERVER['REQUEST_URI']))
-            {
+            } elseif ($url_rewrite && isset($_SERVER['REQUEST_URI'])) {
                 $pos = strpos($_SERVER['REQUEST_URI'], '?');
-                if ($pos !== false)
-                {
+                if ($pos !== false) {
                     $requested_url = substr($_SERVER['REQUEST_URI'], 0, $pos);
-                }
-                else
-                {
+                } else {
                     $requested_url = $_SERVER['REQUEST_URI'];
                 }
-            }
-            else
-            {
+            } else {
                 $pos = strpos($_SERVER['QUERY_STRING'], '&');
-                if ($pos !== false)
-                {
+                if ($pos !== false) {
                     $requested_url = substr($_SERVER['QUERY_STRING'], 0, $pos);
-                }
-                else
-                {
+                } else {
                     $requested_url = $_SERVER['QUERY_STRING'];
                 }
             }
         }
         // If no URL is requested (due to someone accessing admin section for the first time)
         // AND $default is setAllow for a default tab
-        if ($requested_url == null && $default != null)
-        {
+        if ($requested_url == null && $default != null) {
             $requested_url = $default;
         }
         // Requested url MUST start with a slash (for route convention)
-        if (strpos($requested_url, '/') !== 0)
-        {
+        if (strpos($requested_url, '/') !== 0) {
             $requested_url = '/' . $requested_url;
         }
 
@@ -158,31 +139,26 @@ final class Dispatcher
         // Make the first split of the current requested_url
         self::$params = self::splitUrl($requested_url);
         // Do we even have any custom routing to deal with?
-        if (count(self::$routes) === 0 && self::$enable_default_routing)
-        {
+        if (count(self::$routes) === 0 && self::$enable_default_routing) {
             return self::executeAction(self::getApplication() , self::getController() , self::getAction() , self::getParams());
         }
         // Is there a literal match? If so we're done
-        if (isset(self::$routes[$requested_url]))
-        {
+        if (isset(self::$routes[$requested_url])) {
             self::$params = self::splitUrl(self::$routes[$requested_url]);
+
             return self::executeAction(self::getApplication() , self::getController() , self::getAction() , self::getParams());
         }
         // Loop through the route array looking for wildcards
         $is_custom_routing = false;
-        foreach(self::$routes as $route => $uri)
-        {
+        foreach (self::$routes as $route => $uri) {
             // Convert wildcards to regex
-            if (strpos($route, ':') !== false)
-            {
+            if (strpos($route, ':') !== false) {
                 $route = str_replace(':any', '(.+)', str_replace(':num', '([0-9]+)', $route));
             }
             // Does the regex match?
-            if (preg_match('#^' . $route . '$#', $requested_url))
-            {
+            if (preg_match('#^' . $route . '$#', $requested_url)) {
                 // Do we have a back-reference?
-                if (strpos($uri, '$') !== false && strpos($route, '(') !== false)
-                {
+                if (strpos($uri, '$') !== false && strpos($route, '(') !== false) {
                     $uri = preg_replace('#^' . $route . '$#', $uri, $requested_url);
                 }
                 self::$params = self::splitUrl($uri);
@@ -191,13 +167,12 @@ final class Dispatcher
                 break;
             }
         }
-        if(!self::$enable_default_routing && !$is_custom_routing)
-        {
+        if (!self::$enable_default_routing && !$is_custom_routing) {
             throw new \Exception('no default routing allowed', 404);
         }
+
         return self::executeAction(self::getApplication() , self::getController() , self::getAction() , self::getParams());
     }
-
 
     public static function disableDefaultRouting()
     {
@@ -244,14 +219,14 @@ final class Dispatcher
      * @param $application
      * @param $controller
      * @param $action
-     * @param array|null $params
-     * @param bool $layoutEnabled
+     * @param  array|null $params
+     * @param  bool       $layoutEnabled
      * @return mixed
      * @throws \Exception
      */
     public static function executeAction($application, $controller, $action, array $params = null, $layoutEnabled = false)
     {
-        $params = (array)$params;
+        $params = (array) $params;
         self::$status['application'] = $application;
         self::$status['controller'] = $controller;
         self::$status['action'] = $action;
@@ -263,18 +238,14 @@ final class Dispatcher
         $old = ini_set('error_reporting', 0);
         $class_exists = class_exists($controller_class, true);
         ini_set('error_reporting', $old);
-        if ($class_exists)
-        {
+        if ($class_exists) {
             $controller = new $controller_class;
-            if (!$controller instanceof \shozu\Controller)
-            {
+            if (!$controller instanceof \shozu\Controller) {
                 throw new \Exception("Class '{$controller_class}' does not extends Controller class!");
             }
             // Execute the action
             return $controller->execute($action, $params, $layoutEnabled);
-        }
-        else
-        {
+        } else {
             throw new \Exception('not found', 404);
         }
     }
@@ -284,6 +255,7 @@ final class Dispatcher
         ob_start();
         self::executeAction($application, $controller, $action, $params, $layoutEnabled);
         $content = ob_get_clean();
+
         return $content;
     }
 }

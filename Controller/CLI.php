@@ -5,8 +5,7 @@ class CLI extends Controller
 {
     public function __construct()
     {
-        if(PHP_SAPI != 'cli')
-        {
+        if (PHP_SAPI != 'cli') {
             throw new \Exception('Wrong SAPI');
         }
         parent::__construct();

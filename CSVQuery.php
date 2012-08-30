@@ -17,61 +17,58 @@ class CSVQuery
     private $pdo;
     private $table_name = 'csvdata';
     private $headers;
-    
+
     /**
      *
      * @return \PDO
      */
     public function getPDO()
     {
-        if(is_null($this->pdo))
-        {
+        if (is_null($this->pdo)) {
             $this->pdo = new \PDO('sqlite::memory:', null, null, array(
                 1002 => 'SET NAMES utf8',
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
             ));
         }
+
         return $this->pdo;
     }
 
     /**
      *
-     * @param \PDO $pdo
+     * @param  \PDO     $pdo
      * @return CSVQuery
      */
     public function setPDO(\PDO $pdo)
     {
         $this->pdo = $pdo;
+
         return $this;
     }
 
     /**
      *
      * @param $file_name
-     * @param string $delimiter
-     * @param string $enclosure
-     * @param string $escape
+     * @param  string   $delimiter
+     * @param  string   $enclosure
+     * @param  string   $escape
      * @return CSVQuery
      */
     public function loadFromFile($file_name, $delimiter = ',', $enclosure = '"', $escape = '\\')
     {
-        $this->getPDO()->exec('DROP TABLE IF EXISTS ' . $this->table_name);        
+        $this->getPDO()->exec('DROP TABLE IF EXISTS ' . $this->table_name);
         $handle = fopen($file_name, 'r');
         $first = true;
-        
+
         // get column names from first row if not explicitely specified
-        if(is_null($this->headers))
-        {
+        if (is_null($this->headers)) {
             $row = fgetcsv($handle, 0, $delimiter, $enclosure, $escape);
-            if($row)
-            {
+            if ($row) {
                 $cols = array();
-                foreach($row as $k => $v)
-                {
+                foreach ($row as $k => $v) {
                     $v = $this->sanitizeColumnName($v);
-                    if(in_array($v, $cols))
-                    {
+                    if (in_array($v, $cols)) {
                         $v .= '_'.uniqid();
                     }
                     $cols[] = $v;
@@ -80,21 +77,20 @@ class CSVQuery
                 $this->headers = $row;
             }
         }
-        
+
         // create table, insert data
         $sql_create = 'create table ' . $this->table_name . '(' . implode(',', $this->headers) . ')';
         $this->getPDO()->exec($sql_create);
         $sql = 'insert into ' . $this->table_name . '(' . implode(',', $this->headers) . ') values(' . implode(',', array_fill(0, count($this->headers), '?')) . ')';
         $statement = $this->getPDO()->prepare($sql);
-        while(($row = fgetcsv($handle, 0, $delimiter, $enclosure, $escape)) !== false)
-        {
+        while (($row = fgetcsv($handle, 0, $delimiter, $enclosure, $escape)) !== false) {
             $statement->execute($row);
         }
         fclose($handle);
+
         return $this;
     }
-    
-    
+
     private function sanitizeColumnName($name)
     {
         return \shozu\Inflector::fileName($name);
@@ -103,19 +99,19 @@ class CSVQuery
     /**
      *
      * @param $file_name
-     * @param string $delimiter
-     * @param string $enclosure
+     * @param  string   $delimiter
+     * @param  string   $enclosure
      * @return CSVQuery
      */
     public function dumpToFile($file_name, $delimiter = ',', $enclosure = '"')
     {
         $handle = fopen($file_name, 'w');
         $query = $this->getPDO()->query('select * from ' . $this->table_name);
-        while(($row = $query->fetch(\PDO::FETCH_ASSOC)) !== false)
-        {
+        while (($row = $query->fetch(\PDO::FETCH_ASSOC)) !== false) {
             fputcsv($handle, $row, $delimiter, $enclosure);
         }
         fclose($handle);
+
         return $this;
     }
 }

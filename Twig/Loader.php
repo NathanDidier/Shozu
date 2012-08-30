@@ -33,7 +33,7 @@ class Loader implements \Twig_LoaderInterface
     /**
      * Gets the source code of a template, given its name.
      *
-     * @param  string $name The name of the template to load
+     * @param string $name The name of the template to load
      *
      * @return string The template source code
      */
@@ -45,7 +45,7 @@ class Loader implements \Twig_LoaderInterface
     /**
      * Gets the cache key to use for the cache for a given template name.
      *
-     * @param  string $name The name of the template to load
+     * @param string $name The name of the template to load
      *
      * @return string The cache key
      */
@@ -59,6 +59,7 @@ class Loader implements \Twig_LoaderInterface
      *
      * @param string    $name The template name
      * @param timestamp $time The last modification time of the cached template
+     * @return bool
      */
     public function isFresh($name, $time)
     {
@@ -68,8 +69,7 @@ class Loader implements \Twig_LoaderInterface
     protected function findTemplate($name)
     {
         $parts = explode(':', $name);
-        if (count($parts) == 2 && preg_match('/([A-Za-z])/', $parts[0]))
-        {
+        if (count($parts) == 2 && preg_match('/([A-Za-z])/', $parts[0])) {
             $this->application = $parts[0];
             $name = $parts[1];
         }
@@ -84,15 +84,13 @@ class Loader implements \Twig_LoaderInterface
         // normalize name
         $name = preg_replace('#/{2,}#', '/', strtr($name, '\\', '/'));
 
-        if (isset($this->cache[$name]))
-        {
+        if (isset($this->cache[$name])) {
             return $this->cache[$name];
         }
 
         $this->validateName($name);
 
-        if (is_file($name))
-        {
+        if (is_file($name)) {
             return $this->cache[$name] = $name;
         }
 
@@ -101,10 +99,8 @@ class Loader implements \Twig_LoaderInterface
 
     protected function validateName($name)
     {
-        if (false !== strpos($name, "\0"))
-        {
+        if (false !== strpos($name, "\0")) {
             throw new \Twig_Error_Loader('A template name cannot contain NUL bytes.');
         }
     }
 }
-

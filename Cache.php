@@ -44,26 +44,22 @@ abstract class Cache
     /**
      * create / get cache instance
      *
-     * @param string $id Cache identifier
-     * @param array|null $options
+     * @param  string          $id      Cache identifier
+     * @param  array|null      $options
      * @throws Cache\Exception
      * @options array options as key=>value pairs
      * @return Cache cache instance
      */
     public static function getInstance($id, array $options = null)
     {
-        if(!isset(self::$store[$id]))
-        {
-            if(!is_array($options))
-            {
+        if (!isset(self::$store[$id])) {
+            if (!is_array($options)) {
                 throw new \shozu\Cache\Exception('Options must be passed as an array');
             }
-            if(!isset($options['type']))
-            {
+            if (!isset($options['type'])) {
                 throw new \shozu\Cache\Exception('Type option not set');
             }
-            switch($options['type'])
-            {
+            switch ($options['type']) {
                 case 'store':
                 case 'array':
                     self::$store[$id] = new \shozu\Cache\ArrayStore($options);
@@ -84,13 +80,14 @@ abstract class Cache
                     break;
             }
         }
+
         return self::$store[$id];
     }
 
     /**
      * Convinience shortcut to Cache::getInstance()
      *
-     * @param string $id Cache identifier
+     * @param string     $id      Cache identifier
      * @param array|null $options
      * @options array options as key=>value pairs
      * @return Cache cache instance

@@ -16,23 +16,22 @@ class Session
     /**
      * Get Session instance
      *
-     * @param string $name session name (defaults to PHPSESSID)
+     * @param  string  $name session name (defaults to PHPSESSID)
      * @return Session
      */
     public static function getInstance($name = 'PHPSESSID')
     {
-        if(empty(self::$instance))
-        {
+        if (empty(self::$instance)) {
             self::startSession($name);
             self::$instance = new Session;
         }
+
         return self::$instance;
     }
 
     public function __get($key)
     {
-        if(isset($_SESSION[$key]))
-        {
+        if (isset($_SESSION[$key])) {
             return $_SESSION[$key];
         }
     }
@@ -49,10 +48,8 @@ class Session
 
     private static function startSession($name)
     {
-        if(!isset($_SESSION))
-        {
-            if(headers_sent())
-            {
+        if (!isset($_SESSION)) {
+            if (headers_sent()) {
                 throw new \Exception('headers already sent by');
             }
             session_name($name);

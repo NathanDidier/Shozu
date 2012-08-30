@@ -13,8 +13,7 @@ class Request
 
     public function getAcceptableContentTypes()
     {
-        if(is_null($this->acceptable_content_types))
-        {
+        if (is_null($this->acceptable_content_types)) {
             if(! isset($_SERVER['HTTP_ACCEPT']) ||
                 strlen($_SERVER['HTTP_ACCEPT']) == 0)
             {
@@ -22,10 +21,8 @@ class Request
             }
 
             $accepts = array();
-            foreach(preg_split('/\s*,\s*/', $_SERVER['HTTP_ACCEPT']) as $a)
-            {
-                if(($parts = preg_split('/;\s*q=/', $a)))
-                {
+            foreach (preg_split('/\s*,\s*/', $_SERVER['HTTP_ACCEPT']) as $a) {
+                if (($parts = preg_split('/;\s*q=/', $a))) {
                     $a = $parts[0];
                     $q = isset($parts[1]) ? (float) $parts[1] : 1;
                 }

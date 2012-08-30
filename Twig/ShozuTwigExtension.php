@@ -7,7 +7,7 @@ class ShozuTwigExtension extends \Twig_Extension
     protected $shozu;
 
     /**
-     * @param   \shozu\Shozu    $shozu  Shozu instance
+     * @param \shozu\Shozu $shozu Shozu instance
      */
     public function __construct($shozu)
     {
@@ -17,7 +17,7 @@ class ShozuTwigExtension extends \Twig_Extension
     /**
      * Returns a list of global variables to add to the existing list.
      *
-     * @return  array   An array of global variables
+     * @return array An array of global variables
      */
     public function getGlobals()
     {
@@ -29,7 +29,7 @@ class ShozuTwigExtension extends \Twig_Extension
     /**
      * Returns a list of functions to add to the existing list.
      *
-     * @return  array   An array of functions
+     * @return array An array of functions
      */
     public function getFunctions()
     {
@@ -47,7 +47,7 @@ class ShozuTwigExtension extends \Twig_Extension
     /**
      * Returns the name of the extension.
      *
-     * @return  string  The extension name
+     * @return string The extension name
      */
     public function getName()
     {
@@ -57,10 +57,10 @@ class ShozuTwigExtension extends \Twig_Extension
     /**
      * Return rendered view for requested action.
      *
-     * @param   string  $action     Fully qualified action name
-     * @param   array   $params     Parameters for requested action
+     * @param string $action Fully qualified action name
+     * @param array  $params Parameters for requested action
      *
-     * @return  string  The rendered view
+     * @return string The rendered view
      */
     public function functionAction($action, $params = array())
     {

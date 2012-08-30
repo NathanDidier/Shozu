@@ -54,17 +54,17 @@ final class Inflector
      */
     public static function model2dbName($class)
     {
-        if(substr($class, 0, 1) == '\\')
-        {
+        if (substr($class, 0, 1) == '\\') {
             $class = substr($class, 1);
         }
+
         return strtolower(str_replace(array('\\','_models_'), array('_','_'), $class));
     }
 
     /**
      * Remove accents and other diacritics
      *
-     * @param string $utf8String
+     * @param  string $utf8String
      * @return string
      */
     public static function removeDiacritics($utf8String)
@@ -88,14 +88,14 @@ final class Inflector
         $string = self::removeDiacritics($string);
         $string = strtolower($string);
         $string = preg_replace("/[^a-z0-9\\.\\-\\_]/i",'_',$string);
+
         return $string;
     }
-
 
     /**
      * Replace non breaking space with normal space
      *
-     * @param string $str
+     * @param  string $str
      * @return string
      */
     public static function replaceNBSP($str)
@@ -108,16 +108,16 @@ final class Inflector
      *
      * Uppercase first letter
      *
-     * @param string $str
-     * @param string $e encoding, defaults to utf-8
+     * @param  string $str
+     * @param  string $e   encoding, defaults to utf-8
      * @return string
      */
     public static function ucfirst($str, $e = 'utf-8')
     {
         $fc = mb_strtoupper(mb_substr($str, 0, 1, $e), $e);
+
         return $fc . mb_substr($str, 1, mb_strlen($str, $e), $e);
     }
-
 
     /**
     * Replace Url in a text to a link
@@ -128,40 +128,34 @@ final class Inflector
     */
    public static function url2Link($text, $target_blank = true)
    {
-       if($target_blank)
-       {
+       if ($target_blank) {
            return str_replace('&', '&amp;', preg_replace('/([\w]+:\/\/[\w-?&;#~=\.\/\@]+[\w\/])/i','<a target="_blank" href="$1">$1</a>',$text));
-       }
-       else
-       {
+       } else {
            return str_replace('&', '&amp;', preg_replace('/([\w]+:\/\/[\w-?&;#~=\.\/\@]+[\w\/])/i','<a href="$1">$1</a>',$text));
        }
    }
 
-
-
     /**
      * Limit string to given length but do not truncate words
      *
-     * @param string $str input string
-     * @param integer $length length limit
-     * @param integer $minword
+     * @param  string  $str     input string
+     * @param  integer $length  length limit
+     * @param  integer $minword
      * @return string
      */
     public static function limit($str, $length, $minword = 3)
     {
         $sub = '';
         $len = 0;
-        foreach (explode(' ', $str) as $word)
-        {
+        foreach (explode(' ', $str) as $word) {
             $part = (($sub != '') ? ' ' : '') . $word;
             $sub .= $part;
             $len += strlen($part);
-            if (strlen($word) > $minword && strlen($sub) >= $length)
-            {
+            if (strlen($word) > $minword && strlen($sub) >= $length) {
                 break;
             }
         }
+
         return $sub . (($len < strlen($str)) ? '...' : '');
     }
 }

@@ -36,22 +36,17 @@ abstract class Record implements \Iterator
     public function __construct(array $values = null)
     {
         $this->setTableDefinition();
-        if(!$this->hasPrimaryKeys())
-        {
+        if (!$this->hasPrimaryKeys()) {
             $this->setAutoId();
         }
 
-        foreach($this->columns as $k => $v)
-        {
-            if(isset($v['default']))
-            {
+        foreach ($this->columns as $k => $v) {
+            if (isset($v['default'])) {
                 $this->setValue($k, $v['default']);
             }
         }
-        if(!is_null($values))
-        {
-            foreach($values as $key => $value)
-            {
+        if (!is_null($values)) {
+            foreach ($values as $key => $value) {
                 $this->setValue($key, $value);
             }
         }
@@ -61,18 +56,13 @@ abstract class Record implements \Iterator
     {
         $method_prefix = substr($name, 0, 3);
 
-        if(in_array($method_prefix, array('set', 'get')))
-        {
+        if (in_array($method_prefix, array('set', 'get'))) {
             $property = \shozu\Inflector::underscore(substr($name, 3));
 
-            if($this->hasColumn($property))
-            {
-                if($method_prefix == 'set')
-                {
+            if ($this->hasColumn($property)) {
+                if ($method_prefix == 'set') {
                     return $this->__set($property, $args[0]);
-                }
-                elseif($method_prefix == 'get')
-                {
+                } elseif ($method_prefix == 'get') {
                     return $this->__get($property);
                 }
             }
@@ -98,6 +88,7 @@ abstract class Record implements \Iterator
     private function hasPrimaryKeys()
     {
         $keys = $this->getPrimaryKeys();
+
         return !empty($keys);
     }
 
@@ -134,11 +125,12 @@ abstract class Record implements \Iterator
      * </code>
      *
      * @param array $config Configuration array. Keys: name, type, length, formatters, validators, default, unique, references, primary, autoinc, notnull, collate, ondelete
+     * @throws \Exception
+     * @return void
      */
     protected function addColumn(array $config)
     {
-        if(empty($config['name']) || empty($config['type']))
-        {
+        if (empty($config['name']) || empty($config['type'])) {
             throw new \Exception('missing parameters');
         }
         $this->columns[$config['name']] = array(
@@ -146,14 +138,14 @@ abstract class Record implements \Iterator
             'type'       => $config['type'],
             'verbose'    => isset($config['verbose'])    ? $config['verbose']              : null,
             'length'     => isset($config['length'])     ? $config['length']               : null,
-            'formatters' => isset($config['formatters']) ? (array)$config['formatters']    : array(),
-            'validators' => isset($config['validators']) ? (array)$config['validators']    : array(),
+            'formatters' => isset($config['formatters']) ? (array) $config['formatters']    : array(),
+            'validators' => isset($config['validators']) ? (array) $config['validators']    : array(),
             'default'    => isset($config['default'])    ? $config['default']              : null,
-            'unique'     => isset($config['unique'])     ? (bool)$config['unique']         : false,
+            'unique'     => isset($config['unique'])     ? (bool) $config['unique']         : false,
             'references' => isset($config['references']) ? $config['references']           : null,
-            'primary'    => isset($config['primary'])    ? (bool)$config['primary']        : false,
-            'autoinc'    => isset($config['autoinc'])    ? (bool)$config['autoinc']        : false,
-            'notnull'    => isset($config['notnull'])    ? (bool)$config['notnull']        : false,
+            'primary'    => isset($config['primary'])    ? (bool) $config['primary']        : false,
+            'autoinc'    => isset($config['autoinc'])    ? (bool) $config['autoinc']        : false,
+            'notnull'    => isset($config['notnull'])    ? (bool) $config['notnull']        : false,
             'collate'    => isset($config['collate'])    ? $config['collate']              : 'utf8_unicode_ci',
             'ondelete'   => isset($config['ondelete'])   ? $config['ondelete']             : null
         );
@@ -161,8 +153,7 @@ abstract class Record implements \Iterator
 
     protected function addColumns(array $columns)
     {
-        foreach($columns as $column)
-        {
+        foreach ($columns as $column) {
             $this->addColumn($column);
         }
     }
@@ -170,8 +161,8 @@ abstract class Record implements \Iterator
     /**
      * Test if the column whose name was passed as argument exists.
      *
-     * @param   string  $name   Column name
-     * @return  bool            Column existence
+     * @param  string $name Column name
+     * @return bool   Column existence
      */
     public function hasColumn($name)
     {
@@ -181,26 +172,23 @@ abstract class Record implements \Iterator
     /**
      * Fetch create table SQL statement
      *
-     * @param string $dialect (mysql || sqlite)
+     * @param  string $dialect (mysql || sqlite)
+     * @throws \Exception
      * @return string SQL
      */
     public function getTableSql($dialect = null)
     {
-        if(empty($dialect))
-        {
+        if (empty($dialect)) {
             $dialect = self::getDB()->getAdapter()->getAttribute(\PDO::ATTR_DRIVER_NAME);
         }
-        if($dialect == 'sqlite' || $dialect == 'sqlite2')
-        {
+        if ($dialect == 'sqlite' || $dialect == 'sqlite2') {
             return $this->getSqliteTableSql();
         }
-        if($dialect == 'mysql')
-        {
+        if ($dialect == 'mysql') {
             return $this->getMysqlTableSql();
         }
         throw new \Exception('unsupported database dialect');
     }
-
 
     public function createTable()
     {
@@ -210,40 +198,31 @@ abstract class Record implements \Iterator
     private function getSqliteTableSql()
     {
         $fields = array();
-        foreach($this->columns as $fieldName => $description)
-        {
-            if($description['primary'] && $description['autoinc'])
-            {
+        foreach ($this->columns as $fieldName => $description) {
+            if ($description['primary'] && $description['autoinc']) {
                 $fields[] = $fieldName . ' integer primary key';
-            }
-            elseif(isset($description['unique']) && $description['unique'] == true)
-            {
+            } elseif (isset($description['unique']) && $description['unique'] == true) {
                 $fields[] = $fieldName . ' unique';
-            }
-            else
-            {
+            } else {
                 $fields[] = $fieldName;
             }
         }
+
         return 'create table ' . self::getTableName() . '(' . implode(', ', $fields) . ');';
     }
 
     public function getPropertiesTags()
     {
         $out = '';
-        foreach($this->columns as $fieldName => $description)
-        {
+        foreach ($this->columns as $fieldName => $description) {
             $type = $description['type'];
-            if($type == 'date' || $type == 'datetime')
-            {
+            if ($type == 'date' || $type == 'datetime') {
                 $type = '\DateTime';
             }
-            if($type == 'boolean')
-            {
+            if ($type == 'boolean') {
                 $type = 'bool';
             }
-            if($type == 'integer')
-            {
+            if ($type == 'integer') {
                 $type = 'int';
             }
             $out.= '* @property '.$type.' '.$fieldName.PHP_EOL;
@@ -251,6 +230,7 @@ abstract class Record implements \Iterator
             $out.= '* @method void set'.$upper.'() set'.$upper.'('.($this->isPrimitive($type) ? '' : $type).' $'.$fieldName.')'.PHP_EOL;
             $out.= '* @method '.$type.' get'.$upper.'() get'.$upper.'()'.PHP_EOL;
         }
+
         return $out;
     }
 
@@ -265,26 +245,19 @@ abstract class Record implements \Iterator
         $primaryKeys = array();
         $unique      = array();
         $references  = array();
-        foreach($this->columns as $fieldName => $description)
-        {
-            if(!is_null($description['references']))
-            {
+        foreach ($this->columns as $fieldName => $description) {
+            if (!is_null($description['references'])) {
                 $references[$fieldName] = $description['references'];
             }
-            if($description['unique'])
-            {
+            if ($description['unique']) {
                 $unique[] = $fieldName;
             }
-            if($description['primary'])
-            {
+            if ($description['primary']) {
                 $primaryKeys[] = $fieldName;
             }
-            if($description['primary'] && $description['autoinc'])
-            {
+            if ($description['primary'] && $description['autoinc']) {
                 $fields[] = "\n\t" . strtolower($fieldName) . ' bigint(20) NOT NULL auto_increment';
-            }
-            else
-            {
+            } else {
                 $fields[] = "\n\t" . strtolower($fieldName) . ' '
                     . $this->getMysqlType($description['type'], $description['length'])
                     . ($description['type'] == 'string' ? ' collate ' . $description['collate'] : '')
@@ -294,21 +267,16 @@ abstract class Record implements \Iterator
         }
         $out = 'CREATE TABLE IF NOT EXISTS ' . self::getTableName() . '(' . implode(', ', $fields);
         $alter = '';
-        if(!empty($primaryKeys))
-        {
+        if (!empty($primaryKeys)) {
             $out .= ',' . "\n\t" . 'PRIMARY KEY (' . implode(',', $primaryKeys) . ')';
         }
-        if(!empty($unique))
-        {
-            foreach($unique as $u)
-            {
+        if (!empty($unique)) {
+            foreach ($unique as $u) {
                 $out .= ",\n\t" . 'UNIQUE KEY ' . $u . '_idx (' . $u . ')';
             }
         }
-        if(!empty($references))
-        {
-            foreach($references as $idName => $ref)
-            {
+        if (!empty($references)) {
+            foreach ($references as $idName => $ref) {
                 list($refTable, $refField) = explode('.', $ref);
                 $alter .= "\nALTER TABLE " . self::getTableName() . " ADD CONSTRAINT " . 'ref_' . md5(self::getTableName() . '_' . $refTable . '_' . $refField . '_'. $idName)
                     . ' FOREIGN KEY (' . $idName . ') REFERENCES ' . $refTable . '(' . $refField . ')'
@@ -316,6 +284,7 @@ abstract class Record implements \Iterator
             }
         }
         $out .= "\n) ENGINE=" . self::$engine . " DEFAULT CHARSET=utf8 COLLATE=utf8_bin;" . $alter . "\n\n";
+
         return $out;
     }
 
@@ -323,20 +292,17 @@ abstract class Record implements \Iterator
     {
         $default = $this->columns[$field]['default'];
 
-        if(is_null($default))
-        {
+        if (is_null($default)) {
             return '';
         }
 
         $type = $this->columns[$field]['type'];
 
-        if($type == 'bool' || $type == 'boolean')
-        {
-            return ' default ' . self::getDB()->quote((int)$default);
+        if ($type == 'bool' || $type == 'boolean') {
+            return ' default ' . self::getDB()->quote((int) $default);
         }
 
-        if($type == 'array' || $type == 'object')
-        {
+        if ($type == 'array' || $type == 'object') {
             return ' default ' . self::getDB()->quote(serialize($default));
         }
 
@@ -345,59 +311,46 @@ abstract class Record implements \Iterator
 
     private function getMysqlType($phptype, $length)
     {
-        if($phptype == 'string')
-        {
-            if(is_null($length))
-            {
+        if ($phptype == 'string') {
+            if (is_null($length)) {
                 return 'TEXT';
             }
-            if($length > 65535)
-            {
+            if ($length > 65535) {
                 return 'LONGTEXT';
             }
-            if($length >= 256 && $length <= 65535)
-            {
+            if ($length >= 256 && $length <= 65535) {
                 return 'TEXT';
             }
-            if($length < 256)
-            {
+            if ($length < 256) {
                 return 'VARCHAR(' . $length . ')';
             }
         }
 
-        if($phptype == 'int' || $phptype == 'integer')
-        {
-            if(is_null($length))
-            {
+        if ($phptype == 'int' || $phptype == 'integer') {
+            if (is_null($length)) {
                 return 'BIGINT';
             }
-            if($length > 255)
-            {
+            if ($length > 255) {
                 return 'BIGINT';
             }
-            if($length < 256)
-            {
+            if ($length < 256) {
                 return 'TINYINT';
             }
         }
 
-        if($phptype == 'bool' || $phptype == 'boolean')
-        {
+        if ($phptype == 'bool' || $phptype == 'boolean') {
             return 'TINYINT(1)';
         }
 
-        if($phptype == 'float')
-        {
+        if ($phptype == 'float') {
             return 'FLOAT';
         }
 
-        if($phptype == 'array' || $phptype == 'object')
-        {
+        if ($phptype == 'array' || $phptype == 'object') {
             return 'LONGBLOB';
         }
 
-        if($phptype == 'datetime' || $phptype == 'time')
-        {
+        if ($phptype == 'datetime' || $phptype == 'time') {
             return 'DATETIME';
         }
     }
@@ -410,62 +363,59 @@ abstract class Record implements \Iterator
     public function current()
     {
         $field = current($this->columns);
-        if(!isset($field['value']))
-        {
+        if (!isset($field['value'])) {
             $field['value'] = null;
         }
+
         return $field['value'];
     }
 
     public function key()
     {
         $var = key($this->columns);
+
         return $var;
     }
 
     public function next()
     {
         $field = next($this->columns);
-        if(!isset($field['value']))
-        {
+        if (!isset($field['value'])) {
             $field['value'] = null;
         }
+
         return $field['value'];
     }
 
     public function valid()
     {
-        if(!is_null($this->key()))
-        {
+        if (!is_null($this->key())) {
             return true;
         }
+
         return false;
     }
 
     public function __set($key, $value)
     {
-        if(isset($this->columns[$key]))
-        {
+        if (isset($this->columns[$key])) {
             $this->setValue($key, $value);
         }
     }
 
     public function __get($key)
     {
-        if(isset($this->columns[$key]['value']))
-        {
-            if($this->columns[$key]['type'] == 'datetime' || $this->columns[$key]['type'] == 'time')
-            {
+        if (isset($this->columns[$key]['value'])) {
+            if ($this->columns[$key]['type'] == 'datetime' || $this->columns[$key]['type'] == 'time') {
                 return new \DateTime($this->columns[$key]['value']);
             }
-            if($this->columns[$key]['type'] == 'array')
-            {
-                return (array)unserialize($this->columns[$key]['value']);
+            if ($this->columns[$key]['type'] == 'array') {
+                return (array) unserialize($this->columns[$key]['value']);
             }
-            if($this->columns[$key]['type'] == 'object')
-            {
+            if ($this->columns[$key]['type'] == 'object') {
                 return unserialize($this->columns[$key]['value']);
             }
+
             return $this->columns[$key]['value'];
         }
     }
@@ -487,64 +437,51 @@ abstract class Record implements \Iterator
 
     private function setValue($key, $value)
     {
-        if(!isset($this->columns[$key]))
-        {
+        if (!isset($this->columns[$key])) {
             return;
         }
-        if(!empty($this->columns[$key]['formatters']))
-        {
-            foreach($this->columns[$key]['formatters'] as $formatter)
-            {
-                if($formatter == 'limiter' && !empty($this->columns[$key]['length']))
-                {
+        if (!empty($this->columns[$key]['formatters'])) {
+            foreach ($this->columns[$key]['formatters'] as $formatter) {
+                if ($formatter == 'limiter' && !empty($this->columns[$key]['length'])) {
                     $value = mb_substr($value, 0, $this->columns[$key]['length'], 'UTF-8');
-                }
-                else
-                {
+                } else {
                     $value = $this->{$formatter.'Formatter'}($value);
                 }
             }
         }
-        switch($this->columns[$key]['type'])
-        {
+        switch ($this->columns[$key]['type']) {
             case 'int':
             case 'integer':
-                $value = (int)$value;
+                $value = (int) $value;
                 break;
             case 'bool':
             case 'boolean':
-                $value = (bool)$value;
+                $value = (bool) $value;
                 break;
             case 'array':
-                if(!is_string($value))
-                {
+                if (!is_string($value)) {
                     $value = serialize($value);
                 }
                 break;
             case 'object':
-                if(!is_string($value))
-                {
+                if (!is_string($value)) {
                     $value = serialize($value);
                 }
                 break;
             case 'datetime':
             case 'time':
-                if($value instanceof \DateTime)
-                {
+                if ($value instanceof \DateTime) {
                     $value = $value->format('Y-m-d H:i:s');
                 }
-                if(is_integer($value))
-                {
+                if (is_integer($value)) {
                     $value = date('Y-m-d H:i:s', $value);
                 }
             default:
                 $value = $value;
                 break;
         }
-        if(!isset($this->columns[$key]['value']) || $this->columns[$key]['value'] !== $value)
-        {
-            if(!empty($this->columns[$key]['length']) && mb_strlen($value, 'UTF-8') > $this->columns[$key]['length'])
-            {
+        if (!isset($this->columns[$key]['value']) || $this->columns[$key]['value'] !== $value) {
+            if (!empty($this->columns[$key]['length']) && mb_strlen($value, 'UTF-8') > $this->columns[$key]['length']) {
                 throw new \Exception('value exceeds length limit for ' . $key);
             }
             $this->columns[$key]['value'] = $value;
@@ -570,6 +507,7 @@ abstract class Record implements \Iterator
     protected function ucfirstFormatter($str, $e = 'utf-8')
     {
         $fc = mb_strtoupper(mb_substr($str, 0, 1, $e), $e);
+
         return $fc . mb_substr($str, 1, mb_strlen($str, $e), $e);
     }
 
@@ -582,14 +520,14 @@ abstract class Record implements \Iterator
 
     protected function emailValidator($string)
     {
-        if(function_exists('filter_var'))
-        {
-            if(filter_var($string, FILTER_VALIDATE_EMAIL))
-            {
+        if (function_exists('filter_var')) {
+            if (filter_var($string, FILTER_VALIDATE_EMAIL)) {
                 return true;
             }
+
             return false;
         }
+
         return preg_match("!^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$!", $string);
     }
 
@@ -600,10 +538,8 @@ abstract class Record implements \Iterator
 
     protected function _validates()
     {
-        foreach($this->columns as $fieldName => $description)
-        {
-            if(empty($description['validators']))
-            {
+        foreach ($this->columns as $fieldName => $description) {
+            if (empty($description['validators'])) {
                 continue;
             }
             if(empty($this->columns[$fieldName]['value']) and
@@ -615,21 +551,21 @@ abstract class Record implements \Iterator
                 in_array('notblank', $description['validators']))
             {
                 $this->lastError = (!is_null($this->columns[$fieldName]['verbose']) ? $this->columns[$fieldName]['verbose'] : $fieldName) . ': notblank';
+
                 return false;
             }
-            foreach($description['validators'] as $validator)
-            {
-                if($validator === 'notblank')
-                {
+            foreach ($description['validators'] as $validator) {
+                if ($validator === 'notblank') {
                     continue;
                 }
-                if(!$this->{$validator.'Validator'}($this->columns[$fieldName]['value'], $description))
-                {
+                if (!$this->{$validator.'Validator'}($this->columns[$fieldName]['value'], $description)) {
                     $this->lastError = (!is_null($this->columns[$fieldName]['verbose']) ? $this->columns[$fieldName]['verbose'] : $fieldName) . ': ' . $validator;
+
                     return false;
                 }
             }
         }
+
         return true;
     }
 
@@ -640,19 +576,13 @@ abstract class Record implements \Iterator
     {
         $this->preSave();
 
-        if($this->_validates())
-        {
-            if(empty($this->columns['id']['value']))
-            {
+        if ($this->_validates()) {
+            if (empty($this->columns['id']['value'])) {
                 $this->insert();
-            }
-            else
-            {
+            } else {
                 $this->update();
             }
-        }
-        else
-        {
+        } else {
             throw new \Exception('Record validation error. ' . $this->lastError);
         }
 
@@ -675,35 +605,32 @@ abstract class Record implements \Iterator
     public function delete()
     {
         //@todo use natural keys if available
-        if(!$this->hasAutoId)
-        {
+        if (!$this->hasAutoId) {
             throw new \Exception('cant delete record without auto id');
         }
-        self::getDB()->exec('delete from ' . self::getTableName() . 'where id=' . (int)$this->id);
+        self::getDB()->exec('delete from ' . self::getTableName() . 'where id=' . (int) $this->id);
     }
 
     public function insert()
     {
         $return = self::getDB()->insert(self::getTableName(), $this->valuesArray());
         //@TODO unsafe, find a better way
-        if($this->hasAutoId)
-        {
+        if ($this->hasAutoId) {
             $this->columns['id']['value'] = self::getDB()->lastInsertId();
         }
+
         return $return;
     }
 
     public function update()
     {
         $primaryKeys = $this->getPrimaryKeys();
-        if(empty($primaryKeys))
-        {
+        if (empty($primaryKeys)) {
             throw new \Exception('cant update without primary keys');
         }
 
         $where = array();
-        foreach($primaryKeys as $key => $description)
-        {
+        foreach ($primaryKeys as $key => $description) {
             $where[] = $key . '=' . self::getDB()->quote($description['value']);
         }
 
@@ -715,10 +642,10 @@ abstract class Record implements \Iterator
     {
         self::getDB()->replace(self::getTableName(), $this->valuesArray());
         //@TODO unsafe, find a better way
-        if($this->hasAutoId)
-        {
+        if ($this->hasAutoId) {
             $this->columns['id']['value'] = self::getDB()->lastInsertId();
         }
+
         return true;
     }
 
@@ -730,58 +657,52 @@ abstract class Record implements \Iterator
     public function toArray()
     {
         $a = array();
-        foreach($this->columns as $key => $description)
-        {
+        foreach ($this->columns as $key => $description) {
             $a[$key] = isset($description['value']) ? $description['value'] : null;
         }
+
         return $a;
     }
 
     private function getPrimaryKeys()
     {
         $a = array();
-        foreach($this->columns as $key => $description)
-        {
-            if($description['primary'])
-            {
+        foreach ($this->columns as $key => $description) {
+            if ($description['primary']) {
                 $a[$key] = $description;
             }
         }
+
         return $a;
     }
 
     private function valuesArray()
     {
         $a = array();
-        foreach($this->columns as $key => $description)
-        {
+        foreach ($this->columns as $key => $description) {
             // do not fetch primary keys
-            if($description['primary'] && $description['autoinc'])
-            {
+            if ($description['primary'] && $description['autoinc']) {
                 continue;
             }
-            if(isset($description['value']) && $description['value'] instanceof \DateTime)
-            {
+            if (isset($description['value']) && $description['value'] instanceof \DateTime) {
                 $a[$key] = $description['value']->format('Y-m-d H:i:s');
-            }
-            else
-            {
+            } else {
                 $a[$key] = isset($description['value']) ? $description['value'] : null;
             }
         }
+
         return $a;
     }
 
     public static function getTableName($class = '')
     {
-        if(!empty($class))
-        {
+        if (!empty($class)) {
             return \shozu\Inflector::model2dbName($class);
         }
-        if(!empty(self::$tableName))
-        {
+        if (!empty(self::$tableName)) {
             return self::$tableName;
         }
+
         return \shozu\Inflector::model2dbName(get_called_class());
     }
 
@@ -801,13 +722,13 @@ abstract class Record implements \Iterator
      */
     public static function getDB()
     {
-        if(empty(self::$DB))
-        {
+        if (empty(self::$DB)) {
             self::$DB = \shozu\DB::getInstance('default',
                                         Shozu::getInstance()->db_dsn,
                                         Shozu::getInstance()->db_user,
                                         Shozu::getInstance()->db_pass);
         }
+
         return self::$DB;
     }
 
@@ -823,27 +744,27 @@ abstract class Record implements \Iterator
      * }
      * </code>
      *
-     * @param string $class Class
-     * @param array $rows data rows
-     * @return array array of instances
+     * @param  string $class Class
+     * @param  array  $rows  data rows
+     * @return array  array of instances
      */
     public static function hydrate($class, array $rows)
     {
-        if(substr($class, 0, 1) == '\\')
-        {
+        if (substr($class, 0, 1) == '\\') {
             $class = substr($class, 1);
         }
         $objects = array();
-        foreach($rows as $row)
-        {
+        foreach ($rows as $row) {
             $objects[] = new $class($row);
         }
+
         return $objects;
     }
 
     public static function setEngine($engine)
     {
         self::$engine = $engine;
+
         return true;
     }
 
@@ -851,5 +772,5 @@ abstract class Record implements \Iterator
     {
         return get_called_class();
     }
-    
+
 }

@@ -14,39 +14,32 @@ class Hydrator implements \Iterator, \Countable
 
     private function execute(\PDO $db, $select_statement, array $replace_values = array())
     {
-        if(strtolower(substr($select_statement, 0, 7)) != 'select ')
-        {
+        if (strtolower(substr($select_statement, 0, 7)) != 'select ') {
             $select_statement = 'select * from ' . \shozu\ActiveBean::beanName($this->class_to_hydrate) . ' where ' . $select_statement;
         }
-        try
-        {
-            if(count($replace_values))
-            {
+        try {
+            if (count($replace_values)) {
                 $set = $db->prepare($select_statement);
                 $set->execute($replace_values);
-            }
-            else
-            {
+            } else {
                 $set = $db->query($select_statement);
             }
             $got_columns = false;
-            while(($row = $set->fetch(\PDO::FETCH_ASSOC)) !== false)
-            {
-                if(!$got_columns)
-                {
+            while (($row = $set->fetch(\PDO::FETCH_ASSOC)) !== false) {
+                if (!$got_columns) {
                     $this->columns = array_keys($row);
                     $got_columns = true;
                 }
                 $this->rows[] = array_values($row);
             }
+
             return;
-        }
-        catch(\PDOException $e)
-        {
+        } catch (\PDOException $e) {
             if(in_array($e->getCode(), array('42P01', '42703', '42S02', '42S22'))
                 || strpos($e->getMessage(), 'no such table'))
             {
                 $this->rows = array();
+
                 return;
             }
             throw $e;
@@ -66,10 +59,10 @@ class Hydrator implements \Iterator, \Countable
     public function current()
     {
         $row = current($this->rows);
-        if(is_null($row))
-        {
+        if (is_null($row)) {
             return $row;
         }
+
         return new $this->class_to_hydrate(array_combine($this->columns, $row));
     }
 
@@ -81,19 +74,19 @@ class Hydrator implements \Iterator, \Countable
     public function next()
     {
         $row = next($this->rows);
-        if($row === false)
-        {
+        if ($row === false) {
             return null;
         }
+
         return new $this->class_to_hydrate(array_combine($this->columns, $row));
     }
 
     public function valid()
     {
-        if(!is_null($this->key()))
-        {
+        if (!is_null($this->key())) {
             return true;
         }
+
         return false;
     }
 }

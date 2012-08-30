@@ -7,15 +7,15 @@ namespace shozu\Cache;
  */
 class Apc extends \shozu\Cache
 {
-/**
- * No options here.
- *
- * @param Array
- */
+    /**
+     * No options here.
+     *
+     * @param array $options
+     * @throws Exception
+     */
     public function __construct(array $options = null)
     {
-        if(!function_exists('apc_store'))
-        {
+        if (!function_exists('apc_store')) {
             throw new \shozu\Cache\Exception('APC must be installed to use this backend');
         }
     }
@@ -23,9 +23,9 @@ class Apc extends \shozu\Cache
     /**
      * Store value
      *
-     * @param string $id Value identifier
-     * @param mixed $value Value to be stored
-     * @param integer $ttl Cache time to live
+     * @param  string  $id    Value identifier
+     * @param  mixed   $value Value to be stored
+     * @param  integer $ttl   Cache time to live
      * @return boolean
      */
     public function store($id, $value, $ttl = 0)
@@ -36,25 +36,25 @@ class Apc extends \shozu\Cache
     /**
      * Add value. Same as store, but will not overwrite an existing value.
      *
-     * @param string $id Value identifier
-     * @param mixed $value Value to be stored
-     * @param integer $ttl Cache time to live
+     * @param  string  $id    Value identifier
+     * @param  mixed   $value Value to be stored
+     * @param  integer $ttl   Cache time to live
      * @return boolean
      */
     public function add($id, $value, $ttl = 0)
     {
-        if(($val = $this->fetch($id)) === false)
-        {
+        if (($val = $this->fetch($id)) === false) {
             return $this->store($id, $value, $ttl);
         }
+
         return false;
     }
 
     /**
      * Fetch value
      *
-     * @param string $id Value identifier
-     * @return mixed Returns value or false
+     * @param  string $id Value identifier
+     * @return mixed  Returns value or false
      */
     public function fetch($id)
     {
@@ -64,7 +64,7 @@ class Apc extends \shozu\Cache
     /**
      * Delete value from cache
      *
-     * @param string $id Value identifier
+     * @param  string  $id Value identifier
      * @return boolean
      */
     public function delete($id)

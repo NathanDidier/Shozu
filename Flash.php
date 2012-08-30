@@ -29,7 +29,7 @@ final class Flash
      * Return specific variable from the flash. If value is not found NULL is
      * returned
      *
-     * @param string $var Variable name
+     * @param  string $var Variable name
      * @return mixed
      */
     public static function get($var)
@@ -41,8 +41,8 @@ final class Flash
      * Add specific variable to the flash. This variable will be available on the
      * next page unless removed with the removeVariable() or clear() method
      *
-     * @param string $var Variable name
-     * @param mixed $value Variable value
+     * @param  string $var   Variable name
+     * @param  mixed  $value Variable value
      * @return void
      */
     public static function set($var, $value)
@@ -81,8 +81,7 @@ final class Flash
         $session = \shozu\Session::getInstance();
         $tab = $session->$key;
         // Get flash data...
-        if (!empty($tab) && is_array($tab))
-        {
+        if (!empty($tab) && is_array($tab)) {
             self::$_previous = $tab;
         }
         self::clear();

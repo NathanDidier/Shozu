@@ -15,10 +15,10 @@ class Shozu
     }
     public function __get($k)
     {
-        if (!isset($this->store[$k]))
-        {
+        if (!isset($this->store[$k])) {
             throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $k));
         }
+
         return (!is_array($this->store[$k]) && is_callable($this->store[$k])) ? $this->store[$k]($this) : $this->store[$k]; // not php5.3 yet
 
     }
@@ -46,47 +46,38 @@ class Shozu
      * $url = Shozu::getInstance()->url('app/controller/action');
      * </code>
      *
-     * @param string $target targeted path to action
-     * @param array|null $params
-     * @param null $site
+     * @param  string     $target targeted path to action
+     * @param  array|null $params
+     * @param  null       $site
      * @return string
      */
     public function url($target, array $params = null, $site = null)
     {
-        $cache_key = 'url_'.md5($target.implode('', (array)$params).$site);
+        $cache_key = 'url_'.md5($target.implode('', (array) $params).$site);
         $cache = Cache::getInstance('urls', array('type' => 'array'));
-        if(($ret = $cache->fetch($cache_key)) === false)
-        {
-            if(substr($target, 0, 1) == '/')
-            {
+        if (($ret = $cache->fetch($cache_key)) === false) {
+            if (substr($target, 0, 1) == '/') {
                 $target = substr($target, 1);
             }
-            if(($reversed = \shozu\Dispatcher::reverseRoute($target, $params)) !== false)
-            {
+            if (($reversed = \shozu\Dispatcher::reverseRoute($target, $params)) !== false) {
                 $target = $reversed;
-            }
-            elseif(is_array($params))
-            {
-                foreach($params as $key => $param)
-                {
+            } elseif (is_array($params)) {
+                foreach ($params as $key => $param) {
                     $params[$key] = urlencode($param);
                 }
                 $target.= '/' . implode('/', $params);
             }
-            if(substr($target, 0, 1) == '/')
-            {
+            if (substr($target, 0, 1) == '/') {
                 $target = substr($target, 1);
             }
-            if($this->url_rewriting === true)
-            {
+            if ($this->url_rewriting === true) {
                 $ret = $this->base_url . $target;
-            }
-            else
-            {
+            } else {
                 $ret = $this->base_url . '?/' . $target;
             }
             $cache->store($cache_key, $ret);
         }
+
         return $ret;
     }
     /**
@@ -106,7 +97,7 @@ class Shozu
             'document_root'           => function(){return \shozu\Shozu::getInstance()->project_root . 'docroot/';},
             'project_root'            => __DIR__ . '/',
             'benchmark'               => false,
-            'url_rewriting'           => function(){if(!defined('SHOZU_URL_REWRITING')){define('SHOZU_URL_REWRITING', in_array('mod_rewrite', apache_get_modules()));}return SHOZU_URL_REWRITING;},
+            'url_rewriting'           => function(){if (!defined('SHOZU_URL_REWRITING')) {define('SHOZU_URL_REWRITING', in_array('mod_rewrite', apache_get_modules()));}return SHOZU_URL_REWRITING;},
             'use_i18n'                => false,
             'translations'            => array() ,
             'default_application'     => 'welcome',
@@ -144,14 +135,13 @@ class Shozu
      * debug, routes, include_path, error_handler, timezone, session_name,
      * session.
      *
-     * @param array $override configuration
+     * @param  array  $override configuration
      * @return string
      */
     public function setConfig($override = array())
     {
         $config = array_merge($this->getConfigDefaults(), $override);
-        foreach($config as $key => $val)
-        {
+        foreach ($config as $key => $val) {
             $this->__set($key, $val);
         }
     }
@@ -179,50 +169,37 @@ class Shozu
         date_default_timezone_set($this->timezone);
         require_once __DIR__.'/Autoloader.php';
         Autoloader::register();
-        if(!$this->cli)
-        {
+        if (!$this->cli) {
             set_exception_handler(array(
                 '\shozu\Shozu',
                 'handleError'
             ));
         }
-        try
-        {
-            if($this->getCache)
-            {
+        try {
+            if ($this->getCache) {
                 View::setCache($this->getCache);
             }
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
 
         }
-        if($this->debug)
-        {
+        if ($this->debug) {
             error_reporting(E_ALL | E_STRICT);
-            if(!$this->cli)
-            {
+            if (!$this->cli) {
                 ini_set('display_errors', true);
             }
-        }
-        else
-        {
+        } else {
             error_reporting(0);
             ini_set('display_errors', false);
         }
-        if($this->use_i18n)
-        {
+        if ($this->use_i18n) {
             $l = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en';
             $lang = explode(',', $l);
             $lang = strtolower(substr(chop($lang[0]) , 0, 2));
             $this->lang = $lang;
             $langFile = $this->project_root . 'lang' . DIRECTORY_SEPARATOR . $this->lang . '.php';
-            if (is_file($langFile))
-            {
+            if (is_file($langFile)) {
                 include ($langFile);
-            }
-            else
-            {
+            } else {
                 $this->translations = array();
             }
         }
@@ -231,38 +208,30 @@ class Shozu
             $this->project_root . 'applications' . DIRECTORY_SEPARATOR,
             $this->project_root . 'lib' . DIRECTORY_SEPARATOR
         ) , $this->include_path))));
-        if ($this->benchmark)
-        {
+        if ($this->benchmark) {
             \shozu\Benchmark::enable();
         }
-        if ($this->redbean_start)
-        {
+        if ($this->redbean_start) {
             $this->redbean_toolbox = \RedBean_Setup::kickstart(
                 $this->db_dsn, $this->db_user, $this->db_pass, $this->redbean_freeze);
         }
-        if ($this->init_db)
-        {
+        if ($this->init_db) {
             \shozu\DB::getInstance('default', $this->db_dsn, $this->db_user, $this->db_pass);
-            if($this->db_log)
-            {
+            if ($this->db_log) {
                 \shozu\DB::getInstance('default')->enableLog();
             }
         }
-        foreach($this->registered_applications as $app)
-        {
+        foreach ($this->registered_applications as $app) {
             $app_class = trim($app).'\Application';
             $app_routes = $app_class::getRoutes();
-            if(is_array($app_routes))
-            {
+            if (is_array($app_routes)) {
                 $this->routes = array_merge($this->routes, $app_routes);
             }
             $app_observers = $app_class::getObservers();
-            if(is_array($app_observers))
-            {
+            if (is_array($app_observers)) {
                 $this->registerObservers($app_observers);
             }
-            if($this->use_i18n)
-            {
+            if ($this->use_i18n) {
                 $this->translations = array_merge($this->translations, $app_class::getTranslations($this->lang));
             }
         }
@@ -270,17 +239,14 @@ class Shozu
         $this->registerObservers($this->observers);
 
         \shozu\Dispatcher::addRoute($this->routes);
-        if(!$this->enable_default_routing)
-        {
+        if (!$this->enable_default_routing) {
             \shozu\Dispatcher::disableDefaultRouting();
         }
-        if (!$this->cli)
-        {
+        if (!$this->cli) {
             $this->dispatch();
         }
         global $argv;
-        if(isset($argv[1]))
-        {
+        if (isset($argv[1])) {
             \shozu\Dispatcher::dispatch($argv[1]);
         }
     }
@@ -301,8 +267,7 @@ class Shozu
 
     public function getScheme()
     {
-        if(isset($_SERVER['HTTPS']) && strlen($_SERVER['HTTPS']) > 0)
-        {
+        if (isset($_SERVER['HTTPS']) && strlen($_SERVER['HTTPS']) > 0) {
             return 'https://';
         }
 
@@ -311,10 +276,8 @@ class Shozu
 
     private function registerObservers(array $observers_array)
     {
-        foreach($observers_array as $event => $observers)
-        {
-            foreach($observers as $observer)
-            {
+        foreach ($observers_array as $event => $observers) {
+            foreach ($observers as $observer) {
                 \shozu\Observer::observe($event, $observer);
             }
         }
@@ -334,33 +297,23 @@ class Shozu
             $e->getTraceAsString()
         ));
 
-        if (\shozu\Shozu::getInstance()->error_handler != '')
-        {
+        if (\shozu\Shozu::getInstance()->error_handler != '') {
             list($application, $controller, $action) = explode('/', \shozu\Shozu::getInstance()->error_handler);
             die(\shozu\Dispatcher::render($application, $controller, $action, array($e)));
         }
-        if (\shozu\Shozu::getInstance()->debug === true)
-        {
-            if (!headers_sent())
-            {
+        if (\shozu\Shozu::getInstance()->debug === true) {
+            if (!headers_sent()) {
                 header('content-type: text/plain');
-            }
-            else
-            {
+            } else {
                 echo '<pre>';
             }
             die($e->getMessage() . "\n" . $e->getTraceAsString() . "\n");
-        }
-        else
-        {
-            if ($e->getCode() == '404')
-            {
+        } else {
+            if ($e->getCode() == '404') {
                 header('content-type: text/plain');
                 header("HTTP/1.0 404 Not Found");
                 die('file not found.');
-            }
-            else
-            {
+            } else {
                 header('content-type: text/plain');
                 header("HTTP/1.0 500 Internal Error");
                 die('internal error.');
@@ -374,10 +327,10 @@ class Shozu
      */
     public static function getInstance()
     {
-        if (is_null(self::$instance))
-        {
+        if (is_null(self::$instance)) {
             self::$instance = new \shozu\Shozu;
         }
+
         return self::$instance;
     }
     /**
@@ -397,17 +350,16 @@ class Shozu
      * Assumes namespaces map to file system: \myns\myClass => /myns/myClass.php
      *
      * @param string $class class fully qualified name
+     * @return mixed
      */
     public static function autoload($class)
     {
-        if (substr($class, 0, 1) == '\\')
-        {
+        if (substr($class, 0, 1) == '\\') {
             $class = substr($class, 1);
         }
         $classFile = str_replace(array('_', '\\'), array('/', '/'), $class) . '.php';
-        $old = ini_set('error_reporting', 0);
         $result = include ($classFile);
-        ini_set('error_reporting', $old);
+
         return $result;
     }
 }

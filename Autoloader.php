@@ -33,8 +33,7 @@ class Autoloader
 
     public static function register()
     {
-        if(is_null(self::$instance))
-        {
+        if (is_null(self::$instance)) {
             self::$instance = new self;
             spl_autoload_register(array(self::$instance, 'autoload'));
         }
@@ -42,14 +41,14 @@ class Autoloader
 
     public function autoload($class)
     {
-        if (substr($class, 0, 1) == '\\')
-        {
+        if (substr($class, 0, 1) == '\\') {
             $class = substr($class, 1);
         }
         $classFile = str_replace(array('_', '\\'), array(\DIRECTORY_SEPARATOR, \DIRECTORY_SEPARATOR), $class) . '.php';
         $old = ini_set('error_reporting', 0);
         $result = include ($classFile);
         ini_set('error_reporting', $old);
+
         return $result;
     }
 }
