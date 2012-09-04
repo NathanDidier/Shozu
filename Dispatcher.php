@@ -231,13 +231,9 @@ final class Dispatcher
         self::$status['controller'] = $controller;
         self::$status['action'] = $action;
         self::$status['params'] = implode(', ', $params);
-        $old = ini_set('error_reporting', 0);
         include_once (\shozu\Shozu::getInstance()->project_root . 'applications' . DIRECTORY_SEPARATOR . $application . DIRECTORY_SEPARATOR . 'AppInit.php');
-        ini_set('error_reporting', $old);
         $controller_class = self::$status['application'] . '\\controllers\\' . \shozu\Inflector::camelize($controller);
-        $old = ini_set('error_reporting', 0);
         $class_exists = class_exists($controller_class, true);
-        ini_set('error_reporting', $old);
         if ($class_exists) {
             $controller = new $controller_class;
             if (!$controller instanceof \shozu\Controller) {

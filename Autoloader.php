@@ -45,9 +45,7 @@ class Autoloader
             $class = substr($class, 1);
         }
         $classFile = str_replace(array('_', '\\'), array(\DIRECTORY_SEPARATOR, \DIRECTORY_SEPARATOR), $class) . '.php';
-        $old = ini_set('error_reporting', 0);
         $result = include ($classFile);
-        ini_set('error_reporting', $old);
 
         return $result;
     }

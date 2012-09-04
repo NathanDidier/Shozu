@@ -184,12 +184,8 @@ class Shozu
         }
         if ($this->debug) {
             error_reporting(E_ALL | E_STRICT);
-            if (!$this->cli) {
-                ini_set('display_errors', true);
-            }
         } else {
             error_reporting(0);
-            ini_set('display_errors', false);
         }
         if ($this->use_i18n) {
             $l = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en';
