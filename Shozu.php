@@ -196,8 +196,8 @@ class Shozu
         }
         set_include_path(implode(PATH_SEPARATOR, array_unique(array_merge(array(
             '.',
-            $this->project_root . 'applications' . DIRECTORY_SEPARATOR,
-            $this->project_root . 'lib' . DIRECTORY_SEPARATOR
+            $this->project_root . 'applications',
+            $this->project_root . 'lib'
         ) , $this->include_path))));
         if ($this->benchmark) {
             \shozu\Benchmark::enable();
