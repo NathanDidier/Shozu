@@ -92,13 +92,9 @@ class File extends \shozu\Cache
     public function fetch($id)
     {
         $fileName = $this->fileName($id);
-        $old = ini_set('error_reporting', 0);
         if (($file = fopen($fileName, 'r')) === false) {
-            ini_set('error_reporting', $old);
-
             return false;
         }
-        ini_set('error_reporting', $old);
         $expires = (int) fgets($file);
         if ($expires > time() or $expires === 0) {
             $data = '';
@@ -161,13 +157,9 @@ class File extends \shozu\Cache
 
     private function fileHandle($fileName)
     {
-        $old = ini_set('error_reporting', 0);
         if (($file = fopen($fileName, 'r')) === false) {
-            ini_set('error_reporting', $old);
-
             return false;
         }
-        ini_set('error_reporting', $old);
 
         return $file;
     }

@@ -182,15 +182,6 @@ class Shozu
         } catch (\Exception $e) {
 
         }
-        if ($this->debug) {
-            error_reporting(E_ALL | E_STRICT);
-            if (!$this->cli) {
-                ini_set('display_errors', true);
-            }
-        } else {
-            error_reporting(0);
-            ini_set('display_errors', false);
-        }
         if ($this->use_i18n) {
             $l = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en';
             $lang = explode(',', $l);
@@ -205,8 +196,8 @@ class Shozu
         }
         set_include_path(implode(PATH_SEPARATOR, array_unique(array_merge(array(
             '.',
-            $this->project_root . 'applications' . DIRECTORY_SEPARATOR,
-            $this->project_root . 'lib' . DIRECTORY_SEPARATOR
+            $this->project_root . 'applications',
+            $this->project_root . 'lib'
         ) , $this->include_path))));
         if ($this->benchmark) {
             \shozu\Benchmark::enable();
