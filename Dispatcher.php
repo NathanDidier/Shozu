@@ -244,7 +244,7 @@ final class Dispatcher
             // Execute the action
             return $controller->execute($action, $params, $layoutEnabled);
         } else {
-            throw new \Exception('not found', 404);
+            throw new FlowException('not found', 404);
         }
     }
 
