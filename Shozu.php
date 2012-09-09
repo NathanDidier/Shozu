@@ -282,11 +282,13 @@ class Shozu
     }
     public static function handleError(\Exception $e)
     {
-        error_log(sprintf("%s: %s\n%s",
-            get_class($e),
-            $e->getMessage(),
-            $e->getTraceAsString()
-        ));
+        if (!($e instanceof FlowException)){ 
+            error_log(sprintf("%s: %s\n%s",
+                get_class($e),
+                $e->getMessage(),
+                $e->getTraceAsString()
+            ));
+        }
 
         if (\shozu\Shozu::getInstance()->error_handler != '') {
             list($application, $controller, $action) = explode('/', \shozu\Shozu::getInstance()->error_handler);
