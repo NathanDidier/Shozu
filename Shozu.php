@@ -258,6 +258,9 @@ class Shozu
 
     public function getScheme()
     {
+        if ($this->scheme) {
+            return $this->scheme;
+        }
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
             return 'https://';
         }
