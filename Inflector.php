@@ -27,8 +27,8 @@ final class Inflector
     public static function underscore($string)
     {
         return strtolower(preg_replace(
-            '/(?<=[a-z])([A-Z\d])/',
-            '_\\1',
+            array('/([A-Z]+)([A-Z][a-z])/', '/([a-z])([A-Z\d])/'),
+            array('\\1_\\2', '\\1_\\2'),
             $string
         ));
     }
