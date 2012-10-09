@@ -159,7 +159,6 @@ abstract class Controller
         return $this->twig;
     }
 
-
     /**
      * display (echoes) rendered view
      *
