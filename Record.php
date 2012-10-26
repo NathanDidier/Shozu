@@ -10,7 +10,7 @@ namespace shozu;
  *
  * @package MVC
  */
-abstract class Record implements \Iterator
+abstract class Record implements \Iterator, \JsonSerializable
 {
     const SQL_UNKNOWN_TABLE                  = '42S02';
     const SQL_INTEGRITY_CONSTRAINT_VIOLATION = '23000';
@@ -664,6 +664,11 @@ abstract class Record implements \Iterator
         return $a;
     }
 
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
     private function getPrimaryKeys()
     {
         $a = array();
@@ -771,6 +776,11 @@ abstract class Record implements \Iterator
     public static function className()
     {
         return get_called_class();
+    }
+
+    public function getClassName()
+    {
+        return get_class($this);
     }
 
 }
