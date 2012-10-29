@@ -9,10 +9,12 @@ class Shozu
 {
     private static $instance;
     private $store = array();
+
     public function __set($k, $c)
     {
         $this->store[$k] = $c;
     }
+
     public function __get($k)
     {
         if (!isset($this->store[$k])) {
@@ -20,12 +22,13 @@ class Shozu
         }
 
         return (!is_array($this->store[$k]) && is_callable($this->store[$k])) ? $this->store[$k]($this) : $this->store[$k]; // not php5.3 yet
-
     }
+
     public function __isset($k)
     {
         return isset($this->store[$k]);
     }
+
     /**
      * Merge translation strings with current translations
      *
@@ -80,6 +83,7 @@ class Shozu
 
         return $ret;
     }
+
     /**
      * Return Shozu default config.
      *
@@ -132,6 +136,7 @@ class Shozu
             }
         );
     }
+
     /**
      * Return Shozu default config.
      *
@@ -151,6 +156,7 @@ class Shozu
             $this->__set($key, $val);
         }
     }
+
     /**
      * Bootstraps application, dispatch query.
      *
@@ -289,6 +295,7 @@ class Shozu
         \shozu\Observer::notify('shozu.dispatch');
         \shozu\Dispatcher::dispatch();
     }
+
     public static function handleError(\Exception $e)
     {
         if (!($e instanceof FlowException)){
@@ -322,6 +329,7 @@ class Shozu
             }
         }
     }
+
     /**
      * Get Shozu instance
      *
@@ -335,6 +343,7 @@ class Shozu
 
         return self::$instance;
     }
+
     /**
      * Get Shozu instance.
      *
@@ -346,6 +355,7 @@ class Shozu
     {
         return self::getInstance();
     }
+
     /**
      * Default autoloader
      *
