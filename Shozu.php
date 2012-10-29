@@ -123,7 +123,13 @@ class Shozu
             'cli'                     => php_sapi_name() == 'cli' ? true : false,
             'enable_default_routing'  => true,
             'observers'               => array(),
-            'registered_applications' => array()
+            'registered_applications' => array(),
+            'twig_cache_path'         => function() {
+                return join(DIRECTORY_SEPARATOR, array(
+                    sys_get_temp_dir(),
+                    sha1(\shozu\Shozu::getInstance()->project_root)
+                ));
+            }
         );
     }
     /**

@@ -134,15 +134,14 @@ abstract class Controller
                 . 'applications' . DIRECTORY_SEPARATOR
                 . $this->application . DIRECTORY_SEPARATOR
                 . 'views' . DIRECTORY_SEPARATOR;
-            $tmp_dir = sys_get_temp_dir().DIRECTORY_SEPARATOR
-                .sha1(\shozu\Shozu::getInstance()->project_root).DIRECTORY_SEPARATOR;
-            if (!is_dir($tmp_dir)) {
-                mkdir($tmp_dir);
+            $cache_path = $shozu->twig_cache_path;
+            if (!is_dir($cache_path)) {
+                mkdir($cache_path);
             }
             $this->twig = new \Twig_Environment(
                 new \shozu\Twig\Loader($this->application),
                 array(
-                    'cache' => $tmp_dir,
+                    'cache' => $cache_path,
                     'debug' => $shozu->debug
                 )
             );
