@@ -123,7 +123,7 @@ class Shozu
             'cli'                     => php_sapi_name() == 'cli' ? true : false,
             'enable_default_routing'  => true,
             'observers'               => array(),
-            'registered_applications' => array(),
+            'registered_applications' => array()
         );
     }
     /**
