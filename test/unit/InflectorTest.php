@@ -47,4 +47,12 @@ class InflectorTest extends PHPUnit_Framework_TestCase
             Inflector::underscore('getHTML')
         );
     }
+
+    public function testUnderscoreRespectAcronymsInMiddleOfString()
+    {
+        $this->assertEquals(
+            'get_html_content',
+            Inflector::underscore('getHTMLContent')
+        );
+    }
 }
