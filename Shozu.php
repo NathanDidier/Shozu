@@ -21,7 +21,11 @@ class Shozu
             throw new \InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $k));
         }
 
-        return (!is_array($this->store[$k]) && is_callable($this->store[$k])) ? $this->store[$k]($this) : $this->store[$k]; // not php5.3 yet
+        if (is_callable($this->store[$k])) {
+            $this->store[$k] = $this->store[$k]($this);
+        }
+
+        return $this->store[$k];
     }
 
     public function __isset($k)
