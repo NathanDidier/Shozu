@@ -291,7 +291,7 @@ class Shozu
     }
     public static function handleError(\Exception $e)
     {
-        if (!($e instanceof FlowException)){ 
+        if (!($e instanceof FlowException)){
             error_log(sprintf("%s: %s\n%s",
                 get_class($e),
                 $e->getMessage(),
