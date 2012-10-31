@@ -30,6 +30,7 @@ namespace shozu;
 class Autoloader
 {
     private static $instance;
+    private static $paths;
 
     public static function register()
     {
@@ -45,7 +46,11 @@ class Autoloader
             $class = substr($class, 1);
         }
         $classFile = str_replace(array('_', '\\'), array(\DIRECTORY_SEPARATOR, \DIRECTORY_SEPARATOR), $class) . '.php';
+        if(($classFile = stream_resolve_include_path($classFile)) != false) {
 
-        return include $classFile;
+            return include $classFile;
+        }
+
+        return false;
     }
 }
