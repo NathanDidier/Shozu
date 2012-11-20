@@ -36,4 +36,9 @@ class Request
 
         return $this->acceptable_content_types;
     }
+
+    public function getMethod()
+    {
+        return $_SERVER['REQUEST_METHOD'];
+    }
 }
