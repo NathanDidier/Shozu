@@ -41,4 +41,9 @@ class Request
     {
         return $_SERVER['REQUEST_METHOD'];
     }
+
+    public function getOrigin()
+    {
+        return isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : null;
+    }
 }
