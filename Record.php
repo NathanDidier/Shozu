@@ -400,7 +400,9 @@ abstract class Record implements \Iterator, \JsonSerializable
     {
         if (isset($this->columns[$key])) {
             $this->setValue($key, $value);
-        }
+        } else { 
+            $this->$key = $value;
+        }   
     }
 
     public function __get($key)
@@ -438,6 +440,7 @@ abstract class Record implements \Iterator, \JsonSerializable
     private function setValue($key, $value)
     {
         if (!isset($this->columns[$key])) {
+            $this->$key = $value;
             return;
         }
         if (!empty($this->columns[$key]['formatters'])) {
