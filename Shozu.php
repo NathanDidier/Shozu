@@ -249,6 +249,7 @@ class Shozu
         if (!$this->enable_default_routing) {
             \shozu\Dispatcher::disableDefaultRouting();
         }
+        \shozu\Observer::notify('shozu.is_ready_to_dispatch');
         if (!$this->cli) {
             $this->dispatch();
         }
