@@ -230,7 +230,7 @@ final class Dispatcher
         self::$status['application'] = $application;
         self::$status['controller'] = $controller;
         self::$status['action'] = $action;
-        self::$status['params'] = implode(', ', $params);
+        self::$status['params'] = implode(', ', array_filter($params, 'is_scalar'));
 
         self::initApplication($application);
 
