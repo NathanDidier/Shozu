@@ -270,7 +270,7 @@ class Shozu
 
     public function getHost()
     {
-        return $_SERVER['HTTP_HOST'];
+        return isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null;
     }
 
     public function getScheme()
