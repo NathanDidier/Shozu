@@ -19,8 +19,10 @@ class Memcache extends \shozu\Cache
     public function __construct(array $options = null)
     {
         $this->options = $options;
-        if (!is_array($options)) {
-            throw new \shozu\Cache\Exception('You must provide an options array');
+        if (is_null($options)) {
+            $options = array();
+            $options['server'] = '127.0.0.1';
+            $options['port']   = 11211;
         }
         $this->memcache = new \Memcache;
         if (!$this->memcache->connect($options['server'], $options['port'])) {
