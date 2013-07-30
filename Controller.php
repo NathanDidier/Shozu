@@ -144,10 +144,8 @@ abstract class Controller
             $this->twig->addExtension(
                 new \shozu\Twig\ShozuTwigExtension($shozu)
             );
-            if (function_exists('apc_store') && class_exists('\Twig_Extensions_Extension_Cache_APCBackend')) {
-                $this->twig->addExtension(new \Twig_Extensions_Extension_Cache(
-                    new \Twig_Extensions_Extension_Cache_APCBackend
-                ));
+            if (!is_null(\shozu\Shozu::getInstance()->twig_cache_extension)) {
+                $this->twig->addExtension(\shozu\Shozu::getInstance()->twig_cache_extension);
             }
         }
 
