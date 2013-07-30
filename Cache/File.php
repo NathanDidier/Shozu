@@ -92,6 +92,9 @@ class File extends \shozu\Cache
     public function fetch($id)
     {
         $fileName = $this->fileName($id);
+        if (!is_file($fileName)) {
+            return false;
+        }
         if (($file = fopen($fileName, 'r')) === false) {
             return false;
         }
