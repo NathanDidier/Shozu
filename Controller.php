@@ -130,10 +130,6 @@ abstract class Controller
     {
         if (!$this->twig) {
             $shozu = \shozu\Shozu::getInstance();
-            $tpl_dir = $shozu->project_root
-                . 'applications' . DIRECTORY_SEPARATOR
-                . $this->application . DIRECTORY_SEPARATOR
-                . 'views' . DIRECTORY_SEPARATOR;
             $cache_path = $shozu->twig_cache_path;
             if (!is_dir($cache_path)) {
                 mkdir($cache_path);
