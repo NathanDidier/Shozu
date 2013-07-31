@@ -27,7 +27,7 @@ class DB
     private static $pool;
     private $pdo;
     private $isConnected = false;
-    private $useNestedTransactions = true;
+    private $useNestedTransactions = false;
     private $logEnabled = false;
     private $dsn;
     private $user;
