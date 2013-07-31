@@ -67,20 +67,10 @@ abstract class Persistent extends Record
         }
         $this->modified_at = $now;
 
-        try {
-            if ($this->_validates()) {
-                $this->_save($force);
-            } else {
-                throw new \Exception('Record validation error. ' . $this->lastError);
-            }
-        } catch (\PDOException $e) {
-            // table not found, try to create it
-            if ($e->getCode() == self::SQL_UNKNOWN_TABLE) {
-                $this->createTable();
-                $this->_save($force);
-            } else {
-                throw $e;
-            }
+        if ($this->_validates()) {
+            $this->_save($force);
+        } else {
+            throw new \Exception('Record validation error. ' . $this->lastError);
         }
 
         $this->postSave();
