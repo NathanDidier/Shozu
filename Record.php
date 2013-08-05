@@ -4,7 +4,7 @@
  * Do not use in new projects.
  */
 namespace shozu;
-//trigger_error('"Record" is deprecated: use ActiveBean and RedBean.', E_USER_DEPRECATED);
+
 /**
  * Super basic implementation of Active Record pattern
  *
@@ -22,6 +22,8 @@ abstract class Record implements \Iterator, \JsonSerializable
     protected $columns;
     protected $lastError;
 
+    abstract protected function setTableDefinition();
+
     /**
      * New record
      *
@@ -31,7 +33,7 @@ abstract class Record implements \Iterator, \JsonSerializable
      * $myRecord->save();
      * </code>
      *
-     * @param array key/value pairs
+     * @param array
      */
     public function __construct(array $values = null)
     {
@@ -57,7 +59,7 @@ abstract class Record implements \Iterator, \JsonSerializable
         $method_prefix = substr($name, 0, 3);
 
         if (in_array($method_prefix, array('set', 'get'))) {
-            $property = \shozu\Inflector::underscore(substr($name, 3));
+            $property = Inflector::underscore(substr($name, 3));
 
             if ($this->hasColumn($property)) {
                 if ($method_prefix == 'set') {
@@ -138,16 +140,17 @@ abstract class Record implements \Iterator, \JsonSerializable
             'type'       => $config['type'],
             'verbose'    => isset($config['verbose'])    ? $config['verbose']              : null,
             'length'     => isset($config['length'])     ? $config['length']               : null,
-            'formatters' => isset($config['formatters']) ? (array) $config['formatters']    : array(),
-            'validators' => isset($config['validators']) ? (array) $config['validators']    : array(),
+            'formatters' => isset($config['formatters']) ? (array) $config['formatters']   : array(),
+            'validators' => isset($config['validators']) ? (array) $config['validators']   : array(),
             'default'    => isset($config['default'])    ? $config['default']              : null,
-            'unique'     => isset($config['unique'])     ? (bool) $config['unique']         : false,
+            'unique'     => isset($config['unique'])     ? (bool) $config['unique']        : false,
             'references' => isset($config['references']) ? $config['references']           : null,
-            'primary'    => isset($config['primary'])    ? (bool) $config['primary']        : false,
-            'autoinc'    => isset($config['autoinc'])    ? (bool) $config['autoinc']        : false,
-            'notnull'    => isset($config['notnull'])    ? (bool) $config['notnull']        : false,
+            'primary'    => isset($config['primary'])    ? (bool) $config['primary']       : false,
+            'autoinc'    => isset($config['autoinc'])    ? (bool) $config['autoinc']       : false,
+            'notnull'    => isset($config['notnull'])    ? (bool) $config['notnull']       : false,
             'collate'    => isset($config['collate'])    ? $config['collate']              : 'utf8_unicode_ci',
-            'ondelete'   => isset($config['ondelete'])   ? $config['ondelete']             : null
+            'ondelete'   => isset($config['ondelete'])   ? $config['ondelete']             : null,
+            'nullable'   => isset($config['nullable'])   ? (bool)$config['nullable']       : false,
         );
     }
 
@@ -420,6 +423,8 @@ abstract class Record implements \Iterator, \JsonSerializable
 
             return $this->columns[$key]['value'];
         }
+
+        return null;
     }
 
     public function __isset($key)
@@ -452,43 +457,47 @@ abstract class Record implements \Iterator, \JsonSerializable
                 }
             }
         }
-        switch ($this->columns[$key]['type']) {
-            case 'int':
-            case 'integer':
-                $value = (int) $value;
-                break;
-            case 'bool':
-            case 'boolean':
-                $value = (bool) $value;
-                break;
-            case 'array':
-                if (!is_string($value)) {
-                    $value = serialize($value);
-                }
-                break;
-            case 'object':
-                if (!is_string($value)) {
-                    $value = serialize($value);
-                }
-                break;
-            case 'datetime':
-            case 'time':
-                if ($value instanceof \DateTime) {
-                    $value = $value->format('Y-m-d H:i:s');
-                }
-                if (is_integer($value)) {
-                    $value = date('Y-m-d H:i:s', $value);
-                }
-            default:
-                $value = $value;
-                break;
-        }
-        if (!isset($this->columns[$key]['value']) || $this->columns[$key]['value'] !== $value) {
-            if (!empty($this->columns[$key]['length']) && mb_strlen($value, 'UTF-8') > $this->columns[$key]['length']) {
-                throw new \Exception('value exceeds length limit for ' . $key);
-            }
-            $this->columns[$key]['value'] = $value;
+        if ($this->columns[$key]['nullable'] && is_null($value)) {
+            $this->__unset($key);
             $this->isDirty = true;
+        } else {
+            switch ($this->columns[$key]['type']) {
+                case 'int':
+                case 'integer':
+                    $value = (int) $value;
+                    break;
+                case 'bool':
+                case 'boolean':
+                    $value = (bool) $value;
+                    break;
+                case 'array':
+                    if (!is_string($value)) {
+                        $value = serialize($value);
+                    }
+                    break;
+                case 'object':
+                    if (!is_string($value)) {
+                        $value = serialize($value);
+                    }
+                    break;
+                case 'datetime':
+                case 'time':
+                    if ($value instanceof \DateTime) {
+                        $value = $value->format('Y-m-d H:i:s');
+                    }
+                    if (is_integer($value)) {
+                        $value = date('Y-m-d H:i:s', $value);
+                    }
+                default:
+                    break;
+            }
+            if (!isset($this->columns[$key]['value']) || $this->columns[$key]['value'] !== $value) {
+                if (!empty($this->columns[$key]['length']) && mb_strlen($value, 'UTF-8') > $this->columns[$key]['length']) {
+                    throw new \Exception('value exceeds length limit for ' . $key);
+                }
+                $this->columns[$key]['value'] = $value;
+                $this->isDirty = true;
+            }
         }
     }
 
@@ -705,13 +714,13 @@ abstract class Record implements \Iterator, \JsonSerializable
     public static function getTableName($class = '')
     {
         if (!empty($class)) {
-            return \shozu\Inflector::model2dbName($class);
+            return Inflector::model2dbName($class);
         }
         if (!empty(self::$tableName)) {
             return self::$tableName;
         }
 
-        return \shozu\Inflector::model2dbName(get_called_class());
+        return Inflector::model2dbName(get_called_class());
     }
 
     public static function setTableName($name)
@@ -719,19 +728,19 @@ abstract class Record implements \Iterator, \JsonSerializable
         self::$tableName = $name;
     }
 
-    public static function setDB(\shozu\DB $db)
+    public static function setDB(DB $db)
     {
         self::$DB = $db;
     }
 
     /**
      * @static
-     * @return \shozu\DB
+     * @return DB
      */
     public static function getDB()
     {
         if (empty(self::$DB)) {
-            self::$DB = \shozu\DB::getInstance('default',
+            self::$DB = DB::getInstance('default',
                                         Shozu::getInstance()->db_dsn,
                                         Shozu::getInstance()->db_user,
                                         Shozu::getInstance()->db_pass);
