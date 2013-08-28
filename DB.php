@@ -188,7 +188,7 @@ class DB
         $sql = 'insert into ' . ($protect_names ? '`' . $table . '`' : $table) . '(' . implode(', ', $values['columns']) . ') values(' . implode(', ', $values['data']) . ');';
         $this->log($sql);
 
-        return $this->getAdapter()->exec($sql);
+        return $this->exec($sql);
     }
 
     /**
@@ -216,7 +216,7 @@ class DB
         $sql = 'replace into ' . ($protect_names ? '`' . $table . '`' : $table) . '(' . implode(', ', $values['columns']) . ') values(' . implode(', ', $values['data']) . ');';
         $this->log($sql);
 
-        return $this->getAdapter()->exec($sql);
+        return $this->exec($sql);
     }
 
     /**
@@ -253,7 +253,7 @@ class DB
         $sql = 'update ' . ($protect_names ? '`' . $table . '`' : $table) . ' set ' . implode(', ', $values['updates']) . $where;
         $this->log($sql);
 
-        return $this->getAdapter()->exec($sql);
+        return $this->exec($sql);
     }
     /**
      * Performs SELECT query and return fetched results
