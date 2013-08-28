@@ -13,6 +13,6 @@
         }
     ],
     "autoload": {
-        "psr-0": {"shozu": "./"}
+        "psr-0": {"shozu": "."}
     }
 }
