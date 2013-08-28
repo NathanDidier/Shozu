@@ -1,0 +1,18 @@
+{
+    "name": "shozu/shozu",
+    "description": "Yet Another PHP Framework",
+    "keywords": ["framework"],
+    "homepage": "https://github.com/desfrenes/Shozu",
+    "type": "library",
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "Mickael Desfrenes",
+            "email": "mickael@desfrenes.com",
+            "homepage": "http://www.desfrenes.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {"shozu": "./"}
+    }
+}
