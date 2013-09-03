@@ -14,5 +14,8 @@
     ],
     "autoload": {
         "psr-0": {"shozu": "src/"}
+    },
+    "require": {
+        "phpunit/phpunit":"3.7.*"
     }
 }
