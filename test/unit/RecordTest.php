@@ -1,9 +1,5 @@
 <?php
-
 require_once __DIR__ . '/test_helper.php';
-
-require_once 'Record.php';
-require_once 'Inflector.php';
 
 # FIXME: Neither PHP nor PHPUnit allows to stub instance methods at runtime, so
 # \shozu\Record can not be tested conveniently.

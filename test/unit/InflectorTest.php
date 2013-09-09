@@ -1,10 +1,7 @@
 <?php
-
 require_once __DIR__ . '/test_helper.php';
 
-require_once 'Inflector.php';
-
-use \Shozu\Inflector as Inflector;
+use \shozu\Inflector as Inflector;
 
 class InflectorTest extends PHPUnit_Framework_TestCase
 {

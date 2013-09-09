@@ -1,8 +1,5 @@
 <?php
-
 require_once __DIR__ . '/test_helper.php';
-
-require_once 'Shozu.php';
 
 class ShozuTest extends PHPUnit_Framework_TestCase
 {

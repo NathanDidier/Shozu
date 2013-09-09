@@ -1,8 +1,5 @@
 <?php
-
 require_once __DIR__ . '/test_helper.php';
-
-require_once 'Request.php';
 
 use \Shozu\Request as Request;
 
