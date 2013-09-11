@@ -183,8 +183,6 @@ class Shozu
         $this->setConfig($override);
 
         date_default_timezone_set($this->timezone);
-        require_once __DIR__.'/Autoloader.php';
-        Autoloader::register();
         if (!$this->cli) {
             set_exception_handler(array(
                 '\shozu\Shozu',
