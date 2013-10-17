@@ -171,6 +171,8 @@ final class Dispatcher
             throw new \Exception('no default routing allowed', 404);
         }
 
+        \shozu\Observer::notify('shozu.dispatch.has_no_route', $requested_url);
+
         return self::executeAction(self::getApplication() , self::getController() , self::getAction() , self::getParams());
     }
 
