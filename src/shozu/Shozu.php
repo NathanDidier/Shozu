@@ -132,6 +132,7 @@ class Shozu
             'enable_default_routing'  => true,
             'observers'               => array(),
             'registered_applications' => array(),
+            'twig_extensions'         => array(),
             'twig_cache_path'         => function() {
                 return join(DIRECTORY_SEPARATOR, array(
                     sys_get_temp_dir(),
