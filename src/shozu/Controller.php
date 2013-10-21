@@ -10,6 +10,9 @@ abstract class Controller
     public $application;
     protected $layout = false;
     protected $layout_vars = array();
+    /**
+     * @var \Twig_Environment
+     */
     protected $twig;
     protected $request = null;
 
@@ -52,7 +55,7 @@ abstract class Controller
     public function setLayout($layout)
     {
         if (substr($layout, -4) != '.php') {
-            $layout = \shozu\Shozu::getInstance()->project_root . 'applications'
+            $layout = Shozu::getInstance()->project_root . 'applications'
                                           . DIRECTORY_SEPARATOR . $this->application
                                           . DIRECTORY_SEPARATOR . 'views'
                                           . DIRECTORY_SEPARATOR . $layout . '.php';
@@ -109,7 +112,7 @@ abstract class Controller
             return $this->getTwig()->loadTemplate($view)->render($vars);
         }
         if (substr($view, -4) != '.php') {
-            $view = \shozu\Shozu::getInstance()->project_root
+            $view = Shozu::getInstance()->project_root
                 . 'applications' . DIRECTORY_SEPARATOR
                 . $this->application . DIRECTORY_SEPARATOR
                 . 'views' . DIRECTORY_SEPARATOR . $view . '.php';
@@ -129,7 +132,7 @@ abstract class Controller
     public function getTwig()
     {
         if (!$this->twig) {
-            $shozu = \shozu\Shozu::getInstance();
+            $shozu = Shozu::getInstance();
             $cache_path = $shozu->twig_cache_path;
             if (!is_dir($cache_path)) {
                 mkdir($cache_path);
@@ -144,11 +147,11 @@ abstract class Controller
             $this->twig->addExtension(
                 new \shozu\Twig\ShozuTwigExtension($shozu)
             );
-            if (!is_null(\shozu\Shozu::getInstance()->twig_cache_extension)) {
-                $this->twig->addExtension(\shozu\Shozu::getInstance()->twig_cache_extension);
+            if (!is_null(Shozu::getInstance()->twig_cache_extension)) {
+                $this->twig->addExtension(Shozu::getInstance()->twig_cache_extension);
             }
-            if (!is_null(\shozu\Shozu::getInstance()->twig_extensions)) {
-                foreach (\shozu\Shozu::getInstance()->twig_extensions as $extension) {
+            if (!is_null(Shozu::getInstance()->twig_extensions)) {
+                foreach (Shozu::getInstance()->twig_extensions as $extension) {
                     $this->twig->addExtension($extension);
                 }
             }
@@ -188,7 +191,7 @@ abstract class Controller
     public function redirect($route, array $params = null)
     {
         if (substr($route, 0, 4) != 'http') {
-            $route = \shozu\Shozu::getInstance()->url($route, $params);
+            $route = Shozu::getInstance()->url($route, $params);
         }
         header('Location: ' . $route);
         die;
@@ -257,6 +260,6 @@ abstract class Controller
      */
     protected function floodLimit($resource_name, $requests, $time = 60, Cache $cache = null)
     {
-        \shozu\AntiFlood::limit($resource_name, $requests, $time, $cache);
+        AntiFlood::limit($resource_name, $requests, $time, $cache);
     }
 }
