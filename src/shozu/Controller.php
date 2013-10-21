@@ -147,6 +147,11 @@ abstract class Controller
             if (!is_null(\shozu\Shozu::getInstance()->twig_cache_extension)) {
                 $this->twig->addExtension(\shozu\Shozu::getInstance()->twig_cache_extension);
             }
+            if (!is_null(\shozu\Shozu::getInstance()->twig_extensions)) {
+                foreach (\shozu\Shozu::getInstance()->twig_extensions as $extension) {
+                    $this->twig->addExtension($extension);
+                }
+            }
         }
 
         return $this->twig;
