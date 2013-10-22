@@ -378,4 +378,30 @@ class Shozu
 
         return $result;
     }
+
+    /**
+     * Set a shared service, using a closure for lazy instanciation.
+     *
+     * <code>
+     * $container->setShared('my_service', function(){return new myService;});
+     * </code>
+     *
+     * @staticvar closure $object
+     * @param  string   $key
+     * @param  callable  $shared
+     * @return Shozu
+     */
+    public function setShared($key, $shared)
+    {
+        $this->store[$key] = function ($container) use ($shared) {
+            static $object;
+            if (is_null($object)) {
+                $object = $shared($container);
+            }
+
+            return $object;
+        };
+
+        return $this;
+    }
 }
