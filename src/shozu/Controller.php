@@ -108,8 +108,9 @@ abstract class Controller
             foreach ($this->layout_vars as $k => $v) {
                 $vars['_'.$k] = $v;
             }
-
-            return $this->getTwig()->loadTemplate($view)->render($vars);
+            $twig = $this->getTwig();
+            Observer::notify('shozu.controller.before_twig_render', $twig, $view);
+            return $twig->loadTemplate($view)->render($vars);
         }
         if (substr($view, -4) != '.php') {
             $view = Shozu::getInstance()->project_root
