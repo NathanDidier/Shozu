@@ -186,6 +186,7 @@ class DB
             throw new Exception('Nothing to insert');
         }
         $sql = 'insert into ' . ($protect_names ? '`' . $table . '`' : $table) . '(' . implode(', ', $values['columns']) . ') values(' . implode(', ', $values['data']) . ');';
+
         $this->log($sql);
 
         return $this->exec($sql);
@@ -411,6 +412,12 @@ class DB
         foreach ($values as $key => $value) {
             $i++;
             $key = $protect_names ? '`' . $key . '`' : $key;
+            if($value === false) {
+                $value = '0';
+            }
+            if($value === true) {
+                $value = '1';
+            }
             $value = is_null($value) ? 'NULL' : $this->quote($value);
             $keys[] = $key;
             $data[] = $value;
