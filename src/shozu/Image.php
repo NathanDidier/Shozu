@@ -161,6 +161,10 @@ class Image
 
         $this->fitToSquare($size - ($padding * 2));
         $dst= imagecreatetruecolor($size, $size);
+        if ($this->originalMimeType == 'image/png') {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+        }
         $color = imagecolorallocate($dst, (int) $color[0], (int) $color[1], (int) $color[2]);
         imagefill($dst, 0, 0, $color);
 
@@ -199,6 +203,10 @@ class Image
         $minVal = $x < $y ? 'x' : 'y';
         $this->fitInSquare($$minVal, $color, $padding);
         $dst= imagecreatetruecolor($x, $y);
+        if ($this->originalMimeType == 'image/png') {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+        }
         $color = imagecolorallocate($dst, (int) $color[0], (int) $color[1], (int) $color[2]);
         imagefill($dst, 0, 0, $color);
         $bufferX = imagesx($this->tempBuffer);
@@ -228,6 +236,10 @@ class Image
     {
         if (!empty($this->tempBuffer)) {
             $to = imagecreatetruecolor($new_x, $new_y);
+            if ($this->originalMimeType == 'image/png') {
+                imagealphablending($to, false);
+                imagesavealpha($to, true);
+            }
             $from = $this->tempBuffer;
             imagecopyresampled($to, $from, 0, 0, 0, 0, $new_x, $new_y,
                 $this->originalX, $this->originalY);
@@ -452,6 +464,10 @@ class Image
         $dest_height = $src_height + ($src_height / 2);
         $dest_width = $src_width;
         $reflected = imagecreatetruecolor($dest_width, $dest_height);
+        if ($this->originalMimeType == 'image/png') {
+            imagealphablending($reflected, false);
+            imagesavealpha($reflected, true);
+        }
         imagealphablending($reflected, false);
         imagesavealpha($reflected, true);
         imagecopy($reflected, $src_img, 0, 0, 0, 0, $src_width, $src_height);
@@ -566,8 +582,15 @@ class Image
         }
         $w = imagesx($this->tempBuffer); $h = imagesy($this->tempBuffer);
         $imgCanvas = imagecreatetruecolor($w, $h);
+        if ($this->originalMimeType == 'image/png') {
+            imagealphablending($imgCanvas, false);
+            imagesavealpha($imgCanvas, true);
+        }
         $imgBlur = imagecreatetruecolor($w, $h);
-
+        if ($this->originalMimeType == 'image/png') {
+            imagealphablending($imgBlur, false);
+            imagesavealpha($imgBlur, true);
+        }
         // Gaussian blur matrix:
         //
         //    1    2    1
@@ -696,3 +719,9 @@ class Image
         }
     }
 }
+
+
+
+$i = new Image('transparent.png');
+$i->fitToSquare(50);
+$i->toFile('transparent_50.png');
