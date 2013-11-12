@@ -719,9 +719,3 @@ class Image
         }
     }
 }
-
-
-
-$i = new Image('transparent.png');
-$i->fitToSquare(50);
-$i->toFile('transparent_50.png');
