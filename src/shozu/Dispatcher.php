@@ -131,7 +131,7 @@ final class Dispatcher
             $requested_url = '/' . $requested_url;
         }
 
-        \shozu\Observer::notify('shozu.dispatch.has_requested_url', $requested_url);
+        Observer::notify('shozu.dispatch.has_requested_url', $requested_url);
 
         self::$requested_url = $requested_url;
         // This is only trace for debugging
@@ -150,6 +150,7 @@ final class Dispatcher
         }
         // Loop through the route array looking for wildcards
         $is_custom_routing = false;
+        $we_have_a_route = false;
         foreach (self::$routes as $route => $uri) {
             // Convert wildcards to regex
             if (strpos($route, ':') !== false) {
@@ -164,6 +165,7 @@ final class Dispatcher
                 self::$params = self::splitUrl($uri);
                 $is_custom_routing = true;
                 // We found it, so we can break the loop now!
+                $we_have_a_route = true;
                 break;
             }
         }
@@ -171,7 +173,9 @@ final class Dispatcher
             throw new \Exception('no default routing allowed', 404);
         }
 
-        \shozu\Observer::notify('shozu.dispatch.has_no_route', $requested_url);
+        if (!$we_have_a_route) {
+            Observer::notify('shozu.dispatch.has_no_route', $requested_url);
+        }
 
         return self::executeAction(self::getApplication() , self::getController() , self::getAction() , self::getParams());
     }
@@ -193,17 +197,17 @@ final class Dispatcher
 
     public static function getApplication()
     {
-        return isset(self::$params[0]) ? self::$params[0] : \shozu\Shozu::getInstance()->default_application;
+        return isset(self::$params[0]) ? self::$params[0] : Shozu::getInstance()->default_application;
     }
 
     public static function getController()
     {
-        return isset(self::$params[1]) ? self::$params[1] : \shozu\Shozu::getInstance()->default_controller;
+        return isset(self::$params[1]) ? self::$params[1] : Shozu::getInstance()->default_controller;
     }
 
     public static function getAction()
     {
-        return isset(self::$params[2]) ? self::$params[2] : \shozu\Shozu::getInstance()->default_action;
+        return isset(self::$params[2]) ? self::$params[2] : Shozu::getInstance()->default_action;
     }
 
     public static function getParams()
@@ -236,11 +240,11 @@ final class Dispatcher
 
         self::initApplication($application);
 
-        $controller_class = self::$status['application'] . '\\controllers\\' . \shozu\Inflector::camelize($controller);
+        $controller_class = self::$status['application'] . '\\controllers\\' . Inflector::camelize($controller);
         $class_exists = class_exists($controller_class, true);
         if ($class_exists) {
             $controller = new $controller_class;
-            if (!$controller instanceof \shozu\Controller) {
+            if (!$controller instanceof Controller) {
                 throw new \Exception("Class '{$controller_class}' does not extends Controller class!");
             }
             // Execute the action
@@ -265,7 +269,7 @@ final class Dispatcher
     public static function initApplication($application)
     {
         $init_filepath = join(DIRECTORY_SEPARATOR, array(
-            \shozu\Shozu::getInstance()->project_root,
+            Shozu::getInstance()->project_root,
             'applications',
             $application,
             'AppInit.php'
