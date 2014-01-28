@@ -20,6 +20,8 @@ class Loader implements \Twig_LoaderInterface
 {
     protected $cache;
     public $application;
+    private $called_application;
+
     /**
      * Constructor.
      *
@@ -28,6 +30,7 @@ class Loader implements \Twig_LoaderInterface
     public function __construct($application)
     {
         $this->application = $application;
+        $this->called_application = $application;
     }
 
     /**
@@ -66,8 +69,16 @@ class Loader implements \Twig_LoaderInterface
         return filemtime($this->findTemplate($name)) <= $time;
     }
 
-    protected function findTemplate($name)
+    /**
+     * @param $name
+     * @param bool $first_attempt
+     * @return mixed
+     * @throws \Twig_Error_Loader
+     */
+    protected function findTemplate($name, $first_attempt = true)
     {
+        $name_temp = $name;
+
         $parts = explode(':', $name);
         if (count($parts) == 2 && preg_match('/([A-Za-z])/', $parts[0])) {
             $this->application = $parts[0];
@@ -92,6 +103,9 @@ class Loader implements \Twig_LoaderInterface
 
         if (is_file($name)) {
             return $this->cache[$name] = $name;
+        } elseif ($first_attempt === true && $this->application != $this->called_application) {
+            $this->application = $this->called_application;
+            return $this->findTemplate($name_temp, false);
         }
 
         throw new \Twig_Error_Loader(sprintf('Unable to find template "%s" .', $name));
