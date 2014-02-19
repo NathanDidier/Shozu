@@ -675,6 +675,16 @@ abstract class Record implements \Iterator, \JsonSerializable
 
         return $a;
     }
+    
+    /**
+     * @param array $keys_values
+     */
+    public function fromArray(array $keys_values)
+    {
+        foreach ($keys_values as $key => $value) {
+            $this->$key = $value;
+        }
+    }    
 
     public function jsonSerialize()
     {
