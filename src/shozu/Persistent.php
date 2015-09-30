@@ -58,8 +58,8 @@ abstract class Persistent extends Record
      */
     public function save($force = false)
     {
+        Observer::notify('shozu.persistent.save.before', $this);
         $this->preSave();
-
         // stamp object
         $now = time();
         if (is_null($this->created_at)) {
@@ -74,6 +74,7 @@ abstract class Persistent extends Record
         }
 
         $this->postSave();
+        Observer::notify('shozu.persistent.save.after', $this);
     }
 
     private function _save($force = false)

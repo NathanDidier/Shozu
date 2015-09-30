@@ -591,7 +591,7 @@ abstract class Record implements \Iterator, \JsonSerializable
     public function save()
     {
         $this->preSave();
-
+        Observer::notify('shozu.record.presave', $this);
         if ($this->_validates()) {
             if (empty($this->columns['id']['value'])) {
                 $this->insert();
@@ -603,6 +603,7 @@ abstract class Record implements \Iterator, \JsonSerializable
         }
 
         $this->postSave();
+        Observer::notify('shozu.record.postsave', $this);
     }
 
     public function preSave()
@@ -624,17 +625,20 @@ abstract class Record implements \Iterator, \JsonSerializable
         if (!$this->hasAutoId) {
             throw new \Exception('cant delete record without auto id');
         }
+        Observer::notify('shozu.record.delete.before', $this);
         self::getDB()->exec('delete from ' . self::getTableName() . 'where id=' . (int) $this->id);
+        Observer::notify('shozu.record.delete.after', $this);
     }
 
     public function insert()
     {
+        Observer::notify('shozu.record.insert.before', $this);
         $return = self::getDB()->insert(self::getTableName(), $this->valuesArray());
         //@TODO unsafe, find a better way
         if ($this->hasAutoId) {
             $this->columns['id']['value'] = self::getDB()->lastInsertId();
         }
-
+        Observer::notify('shozu.record.insert.after', $this);
         return $return;
     }
 
@@ -644,24 +648,28 @@ abstract class Record implements \Iterator, \JsonSerializable
         if (empty($primaryKeys)) {
             throw new \Exception('cant update without primary keys');
         }
-
+        Observer::notify('shozu.record.update.before', $this);
         $where = array();
         foreach ($primaryKeys as $key => $description) {
             $where[] = $key . '=' . self::getDB()->quote($description['value']);
         }
 
-        return self::getDB()->update(self::getTableName(), $this->valuesArray(),
+        $res = self::getDB()->update(self::getTableName(), $this->valuesArray(),
                               implode(' AND ', $where));
+        Observer::notify('shozu.record.update.after', $this);
+
+        return $res;
     }
 
     public function replace()
     {
+        Observer::notify('shozu.record.replace.before', $this);
         self::getDB()->replace(self::getTableName(), $this->valuesArray());
         //@TODO unsafe, find a better way
         if ($this->hasAutoId) {
             $this->columns['id']['value'] = self::getDB()->lastInsertId();
         }
-
+        Observer::notify('shozu.record.replace.after', $this);
         return true;
     }
 
