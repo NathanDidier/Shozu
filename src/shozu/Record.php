@@ -651,17 +651,20 @@ abstract class Record implements \Iterator, \JsonSerializable
         if (empty($primaryKeys)) {
             throw new \Exception('cant update without primary keys');
         }
-        Observer::notify('shozu.record.update.before', $this);
-        $where = array();
-        foreach ($primaryKeys as $key => $description) {
-            $where[] = $key . '=' . self::getDB()->quote($description['value']);
+        $changed_values = $this->changedValuesArray();
+        if(count($changed_values)){
+            Observer::notify('shozu.record.update.before', $this);
+            $where = array();
+            foreach ($primaryKeys as $key => $description) {
+                $where[] = $key . '=' . self::getDB()->quote($description['value']);
+            }
+
+            $res = self::getDB()->update(self::getTableName(), $this->valuesArray(),
+                implode(' AND ', $where));
+            Observer::notify('shozu.record.update.after', $this);
+
+            return $res;
         }
-
-        $res = self::getDB()->update(self::getTableName(), $this->valuesArray(),
-                              implode(' AND ', $where));
-        Observer::notify('shozu.record.update.after', $this);
-
-        return $res;
     }
 
     public function replace()
@@ -734,6 +737,19 @@ abstract class Record implements \Iterator, \JsonSerializable
         }
 
         return $a;
+    }
+
+    private function changedValuesArray()
+    {
+        $keep_keys = array_keys($this->getDiff());
+        $values = [];
+        foreach ($this->valuesArray() as $key => $value) {
+            if (in_array($key, $keep_keys)) {
+                $values[$key] = $value;
+            }
+        }
+
+        return $values;
     }
 
     public static function getTableName($class = '')
