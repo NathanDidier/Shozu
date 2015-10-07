@@ -659,7 +659,7 @@ abstract class Record implements \Iterator, \JsonSerializable
                 $where[] = $key . '=' . self::getDB()->quote($description['value']);
             }
 
-            $res = self::getDB()->update(self::getTableName(), $this->valuesArray(),
+            $res = self::getDB()->update(self::getTableName(), $changed_values,
                 implode(' AND ', $where));
             Observer::notify('shozu.record.update.after', $this);
 
