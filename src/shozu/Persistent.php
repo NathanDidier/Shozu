@@ -65,8 +65,6 @@ abstract class Persistent extends Record
         if (is_null($this->created_at)) {
             $this->created_at = $now;
         }
-        $this->modified_at = $now;
-
         if ($this->_validates()) {
             $this->_save($force);
         } else {
@@ -87,12 +85,15 @@ abstract class Persistent extends Record
                 $this->isDirty = true;
             }
             if ($this->isDirty) {
+                $this->modified_at = time();
                 if ($this->isNew) {
                     $this->insert();
                     $this->isNew = false;
                 } else {
                     $this->update();
                 }
+                Observer::notify('shozu.persistent._save', $this);
+
                 $this->isDirty = false;
             }
             foreach ($this->linkop as $op) {
