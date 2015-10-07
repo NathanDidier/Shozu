@@ -439,8 +439,10 @@ abstract class Record implements \Iterator, \JsonSerializable
 
     public function __unset($key)
     {
-        $this->columns[$key]['prev_value'] = $this->columns[$key]['value'];
-        unset($this->columns[$key]['value']);
+        if(isset($this->columns[$key]['value'])){
+            $this->columns[$key]['prev_value'] = $this->columns[$key]['value'];
+            unset($this->columns[$key]['value']);
+        }
     }
 
     private function setValue($key, $value)
