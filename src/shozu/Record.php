@@ -42,14 +42,15 @@ abstract class Record implements \Iterator, \JsonSerializable
             $this->setAutoId();
         }
 
-        foreach ($this->columns as $k => $v) {
-            if (isset($v['default'])) {
-                $this->setValue($k, $v['default']);
-            }
+        if(is_null($values)){
+            $values = [];
         }
-        if (!is_null($values)) {
-            foreach ($values as $key => $value) {
-                $this->setValue($key, $value);
+
+        foreach ($this->columns as $k => $v) {
+            if(isset($values[$k])){
+                $this->setValue($k, $values[$k]);
+            }else if(isset($v['default'])) {
+                $this->setValue($k, $v['default']);
             }
         }
     }
