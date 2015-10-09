@@ -47,9 +47,9 @@ abstract class Record implements \Iterator, \JsonSerializable
         }
 
         foreach ($this->columns as $k => $v) {
-            if(isset($values[$k])){
+            if(array_key_exists($k, $values)){
                 $this->setValue($k, $values[$k]);
-            }else if(isset($v['default'])) {
+            }else if(array_key_exists('default', $v)) {
                 $this->setValue($k, $v['default']);
             }
         }
@@ -492,14 +492,46 @@ abstract class Record implements \Iterator, \JsonSerializable
                 default:
                     break;
             }
+
             if (!isset($this->columns[$key]['value']) || $this->columns[$key]['value'] !== $value) {
                 if (!empty($this->columns[$key]['length']) && mb_strlen($value, 'UTF-8') > $this->columns[$key]['length']) {
                     throw new \Exception('value exceeds length limit for ' . $key);
                 }
+
+                if((!array_key_exists('prev', $this->columns[$key])) && array_key_exists('value', $this->columns[$key])){
+                    $this->columns[$key]['prev'] = $this->columns[$key]['value'];
+                }
+
                 $this->columns[$key]['value'] = $value;
                 $this->isDirty = true;
             }
         }
+    }
+
+    private function valuesDiff()
+    {
+        $diff_array = [];
+        foreach($this->columns as $key => $conf) {
+            if(array_key_exists('prev', $conf)){
+                if($conf['prev'] != $conf['value']){
+                    $diff_array[$key] = [$conf['prev'], $conf['value']];
+                }
+            }
+        }
+
+        return $diff_array;
+    }
+
+    private function changedValuesArray(array $keep_keys)
+    {
+        $values = [];
+        foreach($this->valuesArray() as $key => $value){
+            if(in_array($key, $keep_keys)){
+                $values[$key] = $value;
+            }
+        }
+
+        return $values;
     }
 
     protected function trimFormatter($string)
@@ -627,6 +659,14 @@ abstract class Record implements \Iterator, \JsonSerializable
         Observer::notify('shozu.record.delete.after', $this);
     }
 
+
+    private function wipePrevValues()
+    {
+        foreach($this->columns as $key => $conf){
+            unset($this->columns[$key]['prev']);
+        }
+    }
+
     public function insert()
     {
         Observer::notify('shozu.record.insert.before', $this);
@@ -635,6 +675,7 @@ abstract class Record implements \Iterator, \JsonSerializable
         if ($this->hasAutoId) {
             $this->columns['id']['value'] = self::getDB()->lastInsertId();
         }
+        $this->wipePrevValues();
         Observer::notify('shozu.record.insert.after', $this);
         return $return;
     }
@@ -645,15 +686,22 @@ abstract class Record implements \Iterator, \JsonSerializable
         if (empty($primaryKeys)) {
             throw new \Exception('cant update without primary keys');
         }
+        $diff = $this->valuesDiff();
+        $values = $this->changedValuesArray(array_keys($diff));
+        if(!count($values)){
+            return;
+        }
+
         Observer::notify('shozu.record.update.before', $this);
         $where = array();
         foreach ($primaryKeys as $key => $description) {
             $where[] = $key . '=' . self::getDB()->quote($description['value']);
         }
 
-        $res = self::getDB()->update(self::getTableName(), $this->valuesArray(),
+        $res = self::getDB()->update(self::getTableName(), $values,
                               implode(' AND ', $where));
-        Observer::notify('shozu.record.update.after', $this);
+        $this->wipePrevValues();
+        Observer::notify('shozu.record.update.after', $this, $diff);
 
         return $res;
     }
@@ -666,6 +714,7 @@ abstract class Record implements \Iterator, \JsonSerializable
         if ($this->hasAutoId) {
             $this->columns['id']['value'] = self::getDB()->lastInsertId();
         }
+        $this->wipePrevValues();
         Observer::notify('shozu.record.replace.after', $this);
         return true;
     }
