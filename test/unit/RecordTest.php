@@ -9,10 +9,6 @@ require_once __DIR__ . '/test_helper.php';
 # method at runtime on \shozu\Record, in each test that needs it.
 class Record extends \shozu\Record
 {
-    /**
-     * @var Record $record
-     */
-    public $record;
     # Records needs setTableDefinition() method to be defined.
     protected function setTableDefinition()
     {
@@ -44,9 +40,6 @@ class RecordTest extends PHPUnit_Framework_TestCase
             'notblank_prop'  => 'Some value'
         ));
 
-        /**
-         * @var Record $record
-         */
         $this->record = $record;
     }
 
@@ -121,14 +114,5 @@ class RecordTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('BadMethodCallException');
 
         $this->record->setNonExistentSetter(null);
-    }
-
-    public function testGetDiff()
-    {
-        $this->assertTrue(count($this->record->getDiff()) == 0);
-        $this->record->setNotblankProp('some other value');
-        $this->assertTrue(count($this->record->getDiff()) == 1);
-        $this->assertTrue($this->record->getDiff()['notblank_prop'][0] == 'Some value');
-        $this->assertTrue($this->record->getDiff()['notblank_prop'][1] == 'some other value');
     }
 }

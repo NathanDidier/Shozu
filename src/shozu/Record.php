@@ -440,7 +440,6 @@ abstract class Record implements \Iterator, \JsonSerializable
 
     public function __unset($key)
     {
-        $this->columns[$key]['prev_value'] = $this->columns[$key]['value'];
         unset($this->columns[$key]['value']);
     }
 
@@ -496,9 +495,6 @@ abstract class Record implements \Iterator, \JsonSerializable
             if (!isset($this->columns[$key]['value']) || $this->columns[$key]['value'] !== $value) {
                 if (!empty($this->columns[$key]['length']) && mb_strlen($value, 'UTF-8') > $this->columns[$key]['length']) {
                     throw new \Exception('value exceeds length limit for ' . $key);
-                }
-                if(isset($this->columns[$key]['value'])) {
-                    $this->columns[$key]['prev_value'] = $this->columns[$key]['value'];
                 }
                 $this->columns[$key]['value'] = $value;
                 $this->isDirty = true;
@@ -818,22 +814,4 @@ abstract class Record implements \Iterator, \JsonSerializable
         return get_class($this);
     }
 
-    /**
-     * Return differences in properties as $key => ['previous value', 'current value']
-     *
-     * @return array
-     */
-    public function getDiff()
-    {
-        $diff = [];
-        foreach($this->columns as $key => $content) {
-            if( isset($content['prev_value']) &&
-                isset($content['value']) &&
-                $content['prev_value'] != $content['value']) {
-                $diff[$key] = [$content['prev_value'], $content['value']];
-            }
-        }
-
-        return $diff;
-    }
 }
