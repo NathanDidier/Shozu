@@ -53,6 +53,10 @@ abstract class Record implements \Iterator, \JsonSerializable
                 $this->setValue($k, $v['default']);
             }
         }
+
+        if(isset($values['id'])){
+            $this->id = $values['id'];
+        }
     }
 
     public function __call($name, $args)
