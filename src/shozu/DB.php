@@ -144,6 +144,8 @@ class DB
         if ($this->logEnabled) {
             $this->queryLog[(string) microtime(true) ] = $sql;
         }
+
+        Observer::notify('shozu.db.log', $sql);
     }
 
     public function getLastStatement()
