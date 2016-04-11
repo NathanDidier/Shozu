@@ -521,7 +521,11 @@ abstract class Record implements \Iterator, \JsonSerializable
         $diff_array = [];
         foreach($this->columns as $key => $conf) {
             if(array_key_exists('prev', $conf)){
-                if($conf['prev'] != $conf['value']){
+                if (
+                    ($conf['type'] == 'string' and strcmp($conf['prev'], $conf['value']) != 0)
+                    or
+                    ($conf['type'] != 'string' and $conf['prev'] != $conf['value'])
+                ) {
                     $diff_array[$key] = [$conf['prev'], $conf['value']];
                 }
             }
